@@ -1,0 +1,16 @@
+# Serverless refresh job and `make prepare`. Not installed into the App image
+# (rasterio needs GDAL). Keep in sync with the job YAML; tests/test_pins.py checks.
+-c constraints.txt
+httpx
+numpy
+scipy
+pillow
+rasterio
+pyproj
+shapely
+sgp4
+pyshp
+psycopg[binary]
+python-dateutil
+planetary-computer
+pystac-client

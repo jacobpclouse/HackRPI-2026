@@ -1,0 +1,19 @@
+# Runtime config for `databricks apps deploy` without the bundle. The bundle
+# (databricks/resources/darkwatch.app.yml) carries the same command and env.
+# The CLI schema field is value_from (snake_case); valueFrom is ignored.
+command:
+  - python
+  - backend/app.py
+
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    value_from: sql-warehouse
+  - name: FISH_AUDIO_API_KEY
+    value_from: fish-audio-key
+  - name: TIGER_DATABASE_URL
+    value_from: tiger-url
+  - name: DARKWATCH_CATALOG
+    value: workspace
+  - name: DARKWATCH_SCHEMA
+    value: darkwatch
+  # FISH_AUDIO_VOICE_ID / FISH_AUDIO_MODEL default in backend/darkwatch/config.py.

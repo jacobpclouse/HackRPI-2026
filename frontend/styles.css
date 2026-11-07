@@ -1,0 +1,177 @@
+:root {
+  --bg: #071018;
+  --panel: #0c1722;
+  --panel-2: #10202d;
+  --line: #1d3344;
+  --text: #e7eef5;
+  --muted: #8ea6b8;
+  --cyan: #3ddef2;
+  --amber: #ffb020;
+  --red: #ff5a5a;
+  --green: #7dffb3;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* { box-sizing: border-box; }
+html, body, #app { height: 100%; margin: 0; }
+body { background: var(--bg); }
+button, input { font: inherit; color: inherit; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+h1, h2, p { margin: 0; }
+h1 { font-size: 18px; letter-spacing: 0.08em; font-weight: 600; }
+h2 { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+
+#app {
+  display: grid;
+  grid-template-rows: 58px 1fr auto;
+  height: 100%;
+}
+
+header, footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  background: #08131c;
+  border-bottom: 1px solid var(--line);
+}
+footer {
+  border-bottom: 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  gap: 12px;
+  min-height: 32px;
+  padding: 6px 16px;
+}
+.brand { display: flex; gap: 10px; align-items: center; min-width: 240px; }
+.brand p { color: var(--muted); font-size: 12px; }
+.mark {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1.5px solid var(--cyan);
+  box-shadow: inset 0 0 0 5px rgba(61, 222, 242, 0.15), 0 0 0 4px rgba(61, 222, 242, 0.08);
+  position: relative;
+}
+.mark::after {
+  content: "";
+  position: absolute; left: 13px; top: 4px; width: 1px; height: 10px;
+  background: var(--cyan); transform-origin: bottom center; transform: rotate(28deg);
+}
+
+.steps { display: flex; gap: 6px; }
+.steps button, .header-actions button, .row button, .region, .chip {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.steps button.active, .region.active, .chip.on {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.header-actions { display: flex; align-items: center; gap: 12px; }
+#clock { color: var(--muted); font-size: 12px; }
+.clock-mode { font: 11px "IBM Plex Mono", monospace; padding: 2px 6px; border: 1px solid var(--line); }
+.clock-mode.live { color: var(--green); }
+.clock-mode.sim { color: var(--amber); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  min-height: 0;
+}
+aside {
+  background: var(--panel);
+  overflow: auto;
+  padding: 14px;
+  min-height: 0;
+}
+#rail { border-right: 1px solid var(--line); }
+#detail { border-left: 1px solid var(--line); }
+aside section { margin-bottom: 18px; }
+.hint { color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 6px; }
+.ethics {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--amber);
+  color: #f0d7a2;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.region, .chip { display: block; width: 100%; text-align: left; margin-bottom: 6px; border-radius: 10px; }
+.region small, .sat-card small { display: block; color: var(--muted); font-weight: 400; margin-top: 2px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0; }
+#families { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { width: auto; border-radius: 999px; padding: 4px 8px; font-size: 12px; }
+
+main { position: relative; min-height: 0; display: grid; grid-template-rows: 1fr auto; }
+#cesium { min-height: 0; }
+#banner {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  background: #3a1d1d; color: #ffd0d0; border: 1px solid #7a3030;
+  padding: 8px 12px; border-radius: 8px; z-index: 5; max-width: min(640px, 90%);
+  font-size: 13px;
+}
+#timeline {
+  background: rgba(8, 16, 24, 0.94);
+  border-top: 1px solid var(--line);
+  padding: 8px 12px 10px;
+}
+.timeline-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.gap-call { color: var(--amber); font-weight: 600; }
+.tl-bar {
+  position: relative; height: 28px; margin-top: 8px;
+  background: #0a141d; border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+}
+.tl-gap {
+  position: absolute; top: 0; bottom: 0;
+  background: repeating-linear-gradient(-45deg, rgba(255,176,32,0.16), rgba(255,176,32,0.16) 4px, transparent 4px, transparent 8px);
+}
+.tl-pass {
+  position: absolute; top: 4px; bottom: 4px; min-width: 3px; border-radius: 2px;
+}
+.tl-pass.systematic { background: var(--cyan); }
+.tl-pass.possible { background: var(--amber); opacity: 0.85; }
+.tl-now, .tl-obs {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+}
+.tl-now { background: white; }
+.tl-obs { background: var(--red); }
+.tl-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+#detail-body { font-size: 14px; line-height: 1.45; }
+#detail-body p { margin-bottom: 8px; }
+.sat-card, .det-card {
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; background: var(--panel-2);
+}
+.det-card { cursor: pointer; }
+.det-card.unmatched { border-color: #6a3030; }
+.tag {
+  display: inline-block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 999px; padding: 2px 6px; margin-right: 4px;
+}
+.tag.possible { color: #1a1203; background: var(--amber); }
+.tag.systematic { color: #042027; background: var(--cyan); }
+.tag.red { color: white; background: #9d2b2b; }
+.tag.ok { color: #042014; background: var(--green); }
+.list { max-height: 42vh; overflow: auto; }
+.kv { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.kv span { color: var(--muted); }
+
+.cesium-viewer-bottom { max-width: 50%; }
+.cesium-widget-credits { font-size: 10px !important; }
+
+@media (max-width: 980px) {
+  #app { grid-template-rows: auto 1fr auto; }
+  header { flex-wrap: wrap; padding: 8px; height: auto; }
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto minmax(52vh, 1fr) auto; }
+  #rail, #detail { border: 0; max-height: 34vh; }
+  main { min-height: 52vh; }
+  footer { flex-direction: column; align-items: flex-start; height: auto; padding: 6px 12px; }
+}

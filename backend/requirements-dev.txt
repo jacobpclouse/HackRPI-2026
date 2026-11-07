@@ -1,0 +1,6 @@
+-c constraints.txt
+-r requirements.txt
+-r requirements-job.txt
+pytest
+pyyaml
+ruff

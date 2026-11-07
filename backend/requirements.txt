@@ -1,0 +1,15 @@
+# Databricks App / `make dev` runtime. Versions live in constraints.txt.
+-c constraints.txt
+fastapi
+uvicorn
+httpx
+numpy
+scipy
+shapely
+sgp4
+python-dateutil
+python-dotenv
+duckdb
+psycopg[binary]
+databricks-sdk
+databricks-sql-connector
