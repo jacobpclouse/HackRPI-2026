@@ -4,18 +4,16 @@ import { state } from "../state.js";
 import { toast } from "../ui/dom.js";
 
 let swathEntity = null;
-let trackEntity = null;
 
 export function clearSwath() {
   if (swathEntity) state.viewer.entities.remove(swathEntity);
-  if (trackEntity) state.viewer.entities.remove(trackEntity);
   swathEntity = null;
-  trackEntity = null;
 }
 
 export async function drawSwathFor(rec) {
   const feature = await getJSON(`/api/swath?norad=${rec.norad}&at=${encodeURIComponent(clockISO())}`);
   if (swathEntity) state.viewer.entities.remove(swathEntity);
+  swathEntity = null;
   if (!feature.geometry) {
     toast(feature.properties && feature.properties.error, "/api/swath");
     return;
@@ -38,39 +36,6 @@ export async function drawSwathFor(rec) {
       outline: true,
       outlineColor: color,
       height: 0,
-    },
-    label: possible
-      ? {
-          text: "POSSIBLE",
-          font: "11px JetBrains Mono, monospace",
-          fillColor: Cesium.Color.fromCssColorString("#5ac8fa"),
-          pixelOffset: new Cesium.Cartesian2(0, 18),
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        }
-      : undefined,
-  });
-  drawGroundTrack(rec);
-}
-
-function drawGroundTrack(rec) {
-  if (trackEntity) state.viewer.entities.remove(trackEntity);
-  const sat = state.sats.find((item) => item.rec.norad === rec.norad);
-  if (!sat) return;
-  const now = Cesium.JulianDate.toDate(state.viewer.clock.currentTime);
-  const positions = [];
-  for (let sec = -180; sec <= 360; sec += 20) {
-    const date = new Date(now.getTime() + sec * 1000);
-    const pv = satellite.propagate(sat.satrec, date);
-    if (!pv.position) continue;
-    const geo = satellite.eciToGeodetic(pv.position, satellite.gstime(date));
-    positions.push(satellite.degreesLong(geo.longitude), satellite.degreesLat(geo.latitude));
-  }
-  trackEntity = state.viewer.entities.add({
-    polyline: {
-      positions: Cesium.Cartesian3.fromDegreesArray(positions),
-      width: 1,
-      material: Cesium.Color.fromCssColorString(rec.color).withAlpha(1),
-      clampToGround: true,
     },
   });
 }

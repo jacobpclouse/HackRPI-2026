@@ -12,6 +12,7 @@ export function bindClock(v) {
   viewer.clock.shouldAnimate = true;
   viewer.clock.multiplier = 1;
   viewer.clock.currentTime = Cesium.JulianDate.now();
+  publish();
 }
 
 export function clockDate() {

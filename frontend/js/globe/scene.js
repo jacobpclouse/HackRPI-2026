@@ -1,23 +1,7 @@
 import { getJSON } from "../api.js";
 import { set, state } from "../state.js";
-import { $ } from "../ui/dom.js";
 
-const layers = { scene: null, tracks: [], dets: [], mpas: null, pick: null };
-
-export function markPoint(lat, lon, name) {
-  if (layers.pick) state.viewer.entities.remove(layers.pick);
-  layers.pick = state.viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
-    point: { pixelSize: 8, color: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth: 1 },
-    label: {
-      text: name,
-      font: "12px Inter, sans-serif",
-      pixelOffset: new Cesium.Cartesian2(0, -16),
-      fillColor: Cesium.Color.WHITE,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY,
-    },
-  });
-}
+const layers = { scene: null, tracks: [], dets: [], mpas: null };
 
 export async function loadMpas() {
   const data = await getJSON("/api/mpas");
@@ -52,7 +36,7 @@ export async function clearSceneLayers() {
 }
 
 function addDetections(collection) {
-  const show = $("toggle-det").checked;
+  const show = state.layers.det;
   for (const feature of collection.features) {
     const [lon, lat] = feature.geometry.coordinates;
     const matched = feature.properties.matched;
@@ -60,21 +44,20 @@ function addDetections(collection) {
     const entity = state.viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(lon, lat),
       show,
+      point: {
+        pixelSize: matched ? 6 : 9,
+        color,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: matched ? 0 : 1,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      },
       ellipse: {
         semiMinorAxis: matched ? 450 : 700,
         semiMajorAxis: matched ? 450 : 700,
-        material: Cesium.Color.TRANSPARENT,
+        material: color.withAlpha(0.12),
         outline: true,
         outlineColor: color,
         height: 0,
-      },
-      label: {
-        text: feature.properties.id,
-        font: "11px JetBrains Mono, monospace",
-        fillColor: color,
-        pixelOffset: new Cesium.Cartesian2(0, -16),
-        show: !matched,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
     });
     entity.detection = feature;
@@ -83,7 +66,7 @@ function addDetections(collection) {
 }
 
 function addTracks(collection) {
-  const show = $("toggle-ais").checked;
+  const show = state.layers.ais;
   for (const feature of collection.features) {
     const flat = [];
     for (const pair of feature.geometry.coordinates) flat.push(pair[0], pair[1]);
@@ -105,6 +88,7 @@ export async function showScene() {
   const scene = await getJSON("/api/scene");
   const [west, south, east, north] = scene.meta.bbox;
   const rect = Cesium.Rectangle.fromDegrees(west, south, east, north);
+  state.viewer.trackedEntity = undefined;
   state.viewer.camera.flyTo({ destination: rect, duration: 2.5, easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT });
   await clearSceneLayers();
   const provider = await Cesium.SingleTileImageryProvider.fromUrl("/api/scene/preview.png", { rectangle: rect });

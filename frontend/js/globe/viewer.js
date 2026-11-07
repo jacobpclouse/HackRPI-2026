@@ -4,14 +4,7 @@ import { coord } from "../ui/format.js";
 
 const cfg = window.DARKWATCH_CONFIG || {};
 
-function imagery(mode) {
-  if (mode === "vector") {
-    return new Cesium.UrlTemplateImageryProvider({
-      url: "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
-      credit: "© OpenStreetMap contributors © CARTO",
-      maximumLevel: 19,
-    });
-  }
+function esriImagery() {
   return new Cesium.UrlTemplateImageryProvider({
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     credit: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
@@ -19,21 +12,14 @@ function imagery(mode) {
   });
 }
 
-function styleLayer(layer, mode) {
-  if (mode === "imagery") {
-    layer.brightness = 0.55;
-    layer.saturation = 0.25;
-    layer.contrast = 1.15;
-  } else {
-    layer.brightness = 1;
-    layer.saturation = 1;
-    layer.contrast = 1;
-  }
+function gradeLayer(layer) {
+  layer.brightness = 1.02;
+  layer.saturation = 0.92;
+  layer.contrast = 1.04;
 }
 
 export function createViewer() {
   if (cfg.ionToken) Cesium.Ion.defaultAccessToken = cfg.ionToken;
-  const provider = imagery("imagery");
   const viewer = new Cesium.Viewer("cesium", {
     animation: false,
     timeline: false,
@@ -45,30 +31,43 @@ export function createViewer() {
     fullscreenButton: false,
     infoBox: false,
     selectionIndicator: false,
-    baseLayer: new Cesium.ImageryLayer(provider),
+    baseLayer: false,
     terrainProvider: new Cesium.EllipsoidTerrainProvider(),
   });
+  const esri = viewer.imageryLayers.addImageryProvider(esriImagery());
+  gradeLayer(esri);
   const globe = viewer.scene.globe;
-  globe.baseColor = Cesium.Color.fromCssColorString("#05070a");
+  globe.baseColor = Cesium.Color.fromCssColorString("#0a1628");
+  globe.show = true;
   globe.enableLighting = true;
   globe.showGroundAtmosphere = true;
+  if (typeof globe.atmosphereLightIntensity === "number") {
+    globe.atmosphereLightIntensity = 12;
+  }
+  globe.lightingFadeOutDistance = 2.4e7;
+  globe.lightingFadeInDistance = 4.0e7;
+  globe.nightFadeOutDistance = 1.0e7;
+  globe.nightFadeInDistance = 3.0e7;
   viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#05070a");
   viewer.scene.fog.enabled = false;
-  viewer.scene.skyAtmosphere.brightnessShift = -0.25;
-  viewer.scene.skyAtmosphere.saturationShift = -0.35;
+  viewer.scene.skyAtmosphere.brightnessShift = -0.08;
+  viewer.scene.skyAtmosphere.saturationShift = -0.12;
   viewer.scene.skyBox.show = true;
-  styleLayer(viewer.imageryLayers.get(0), "imagery");
-  viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(8, 20, 18000000) });
+  viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(-40, 18, 18000000) });
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction((move) => {
     const picked = viewer.scene.pick(move.endPosition);
+    const rec = picked && picked.id && picked.id.satellite;
+    const det = picked && picked.id && picked.id.detection;
     const tip = $("hud-tip");
-    if (picked && picked.id && picked.id.satellite) {
-      const rec = picked.id.satellite;
+    if (rec) {
       const sat = state.sats.find((item) => item.rec.norad === rec.norad);
       const alt = sat && sat.altKm != null ? `  ${sat.altKm.toFixed(0)} km` : "";
       tip.hidden = false;
       tip.textContent = `${rec.name}  ${rec.family}${alt}`;
+    } else if (det) {
+      tip.hidden = false;
+      tip.textContent = det.properties.id + (det.properties.matched ? "  AIS" : "  unmatched");
     } else {
       tip.hidden = true;
     }
@@ -93,6 +92,7 @@ export function createViewer() {
 }
 
 export function flyTo(dest, duration = 2.5) {
+  state.viewer.trackedEntity = undefined;
   state.viewer.camera.flyTo({
     destination: dest,
     duration,
@@ -100,20 +100,11 @@ export function flyTo(dest, duration = 2.5) {
   });
 }
 
-export function setBasemap(mode) {
-  const viewer = state.viewer;
-  const layer = viewer.imageryLayers.get(0);
-  viewer.imageryLayers.remove(layer, true);
-  const next = viewer.imageryLayers.addImageryProvider(imagery(mode), 0);
-  styleLayer(next, mode);
+export function flyHome() {
+  flyTo(Cesium.Cartesian3.fromDegrees(-40, 18, 18000000));
 }
 
-export function pickOcean(click, onPoint) {
-  const viewer = state.viewer;
-  const picked = viewer.scene.pick(click.position);
-  if (picked && picked.id && (picked.id.satellite || picked.id.detection)) return;
-  const cartesian = viewer.camera.pickEllipsoid(click.position, Cesium.Ellipsoid.WGS84);
-  if (!cartesian) return;
-  const carto = Cesium.Cartographic.fromCartesian(cartesian);
-  onPoint(Cesium.Math.toDegrees(carto.latitude), Cesium.Math.toDegrees(carto.longitude));
+export function pickId(click) {
+  const picked = state.viewer.scene.pick(click.position);
+  return (picked && picked.id) || null;
 }

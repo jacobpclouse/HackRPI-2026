@@ -16,87 +16,54 @@
   <link href="/css/globe.css" rel="stylesheet" />
 </head>
 <body>
-  <div id="boot" hidden>
-    <p class="wordmark">DARKWATCH</p>
-    <ol id="boot-log" class="boot-log"></ol>
-    <p class="micro muted">Press any key to skip</p>
-  </div>
-
   <div id="app">
     <header>
-      <p class="wordmark">DARKWATCH</p>
-      <nav class="modes" aria-label="Modes">
-        <button type="button" data-mode="orbit" class="active"><span class="num">01</span> ORBIT</button>
-        <button type="button" data-mode="coverage"><span class="num">02</span> COVERAGE</button>
-        <button type="button" data-mode="scene"><span class="num">03</span> SCENE</button>
-        <button type="button" data-mode="analysis"><span class="num">04</span> ANALYSIS</button>
-      </nav>
+      <button type="button" id="wordmark" class="wordmark">DARKWATCH</button>
       <div class="clock-cluster">
         <span id="utc" class="data">00:00:00</span>
         <span id="badge" class="badge live">LIVE</span>
         <span id="offset" class="data muted" hidden></span>
         <button type="button" id="speed" title="Simulation speed">1×</button>
-        <button type="button" id="live" hidden>Return to live</button>
+        <button type="button" id="live" hidden>Live</button>
         <span id="status-dot" class="status-dot" title="Data sources"></span>
       </div>
     </header>
 
-    <div class="workspace">
-      <aside id="rail">
-        <section>
-          <h2>01 / REGIONS</h2>
-          <div id="regions"></div>
-          <p class="hint">Click open water on the globe, or pick a region.</p>
-        </section>
-        <section>
-          <h2>02 / FLEETS</h2>
-          <p id="catalog-status" class="hint">Loading catalog.</p>
-          <div id="families"></div>
-        </section>
-        <section>
-          <h2>03 / LAYERS</h2>
-          <label class="check"><input type="checkbox" id="toggle-sats" checked /> Satellites</label>
-          <label class="check"><input type="checkbox" id="toggle-mpa" checked /> Protected areas</label>
-          <label class="check"><input type="checkbox" id="toggle-ais" checked /> AIS tracks</label>
-          <label class="check"><input type="checkbox" id="toggle-det" checked /> Detections</label>
-          <label class="check"><input type="checkbox" id="toggle-possible" /> Tasked possible coverage</label>
-        </section>
-        <section>
-          <h2>04 / BASEMAP</h2>
-          <div class="row">
-            <button type="button" id="basemap">Imagery</button>
-            <button type="button" id="narrate">Narrate flyover</button>
-          </div>
-        </section>
-      </aside>
+    <main>
+      <div id="cesium"></div>
 
-      <main>
-        <div id="cesium"></div>
-        <div id="hud">
-          <div id="hud-cursor" class="data">—</div>
-          <div id="hud-alt" class="data">—</div>
-          <div id="hud-tip" class="data" hidden></div>
-          <div id="hud-chips"></div>
-        </div>
-      </main>
-
-      <aside id="inspector">
-        <h2 id="detail-title">01 / INSPECTOR</h2>
-        <div id="detail-body">
-          <p>Satellites are propagated with satellite.js from CelesTrak GP elements. Click one for its mission registry entry and an approximate radar swath, offset from the ground track.</p>
-          <p class="ethics">Unmatched means not matched to public AIS. It is not evidence of wrongdoing.</p>
-        </div>
-      </aside>
-    </div>
-
-    <section id="timeline" aria-live="polite">
-      <div class="timeline-head">
-        <strong id="tl-title">Select a region</strong>
-        <span id="tl-gap" class="hero-inline"></span>
+      <div id="hud">
+        <div id="hud-cursor" class="data">—</div>
+        <div id="hud-alt" class="data">—</div>
+        <div id="hud-tip" class="data" hidden></div>
+        <div id="hud-chips"></div>
       </div>
-      <canvas id="tl-canvas" height="72"></canvas>
-      <p id="tl-note" class="hint">48-hour coverage window. Drag the playhead to scrub. Tasked ticks never close a gap.</p>
-    </section>
+
+      <div id="dock">
+        <button type="button" id="place-kattegat">Kattegat</button>
+        <button type="button" id="dock-sats" class="on">Satellites</button>
+        <button type="button" id="dock-ais" class="on">AIS</button>
+        <button type="button" id="dock-det" class="on">Detections</button>
+      </div>
+
+      <aside id="legend" hidden></aside>
+
+      <aside id="card" hidden>
+        <div class="card-head">
+          <h2 id="card-title"></h2>
+          <button type="button" id="card-close">Close</button>
+        </div>
+        <div id="card-body"></div>
+      </aside>
+
+      <section id="timeline" hidden>
+        <div class="timeline-head">
+          <strong id="tl-title">Coverage</strong>
+          <span id="tl-gap" class="hero-inline"></span>
+        </div>
+        <canvas id="tl-canvas" height="40"></canvas>
+      </section>
+    </main>
   </div>
 
   <div id="toasts" aria-live="polite"></div>
@@ -104,12 +71,11 @@
   <dialog id="shortcuts">
     <h2>KEYBOARD</h2>
     <dl>
-      <div><dt>1–4</dt><dd>Modes</dd></div>
+      <div><dt>K</dt><dd>Kattegat</dd></div>
       <div><dt>Space</dt><dd>Play / pause</dd></div>
       <div><dt>L</dt><dd>Return to live</dd></div>
       <div><dt>F</dt><dd>Fly to selection</dd></div>
       <div><dt>Esc</dt><dd>Clear selection</dd></div>
-      <div><dt>[ ]</dt><dd>Collapse panels</dd></div>
       <div><dt>?</dt><dd>This sheet</dd></div>
     </dl>
     <form method="dialog"><button type="submit">Close</button></form>

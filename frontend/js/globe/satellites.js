@@ -1,102 +1,173 @@
 import { getJSON } from "../api.js";
+import { clockDate } from "../clock.js";
 import { set, state } from "../state.js";
-import { $ } from "../ui/dom.js";
 
-function diamond(color) {
-  const c = document.createElement("canvas");
-  c.width = 12;
-  c.height = 12;
-  const g = c.getContext("2d");
-  g.fillStyle = color;
-  g.beginPath();
-  g.moveTo(6, 1);
-  g.lineTo(11, 6);
-  g.lineTo(6, 11);
-  g.lineTo(1, 6);
-  g.closePath();
-  g.fill();
-  return c;
+const ORBIT_STEPS = 128;
+const scratchRotation = new Cesium.Matrix3();
+const scratchMatrix = new Cesium.Matrix4();
+
+let points = null;
+let orbitPrimitive = null;
+let orbitGmst = 0;
+let preRenderRemove = null;
+
+function periodSeconds(satrec) {
+  const meanMotion = satrec.no * (1440 / (2 * Math.PI));
+  return 86400 / Math.max(meanMotion, 0.1);
 }
 
-function reticleCanvas() {
-  const c = document.createElement("canvas");
-  c.width = 48;
-  c.height = 48;
-  const g = c.getContext("2d");
-  g.strokeStyle = "#e6eaf0";
-  g.lineWidth = 1.25;
-  const draw = (x, y, dx, dy) => {
-    g.beginPath();
-    g.moveTo(x, y + dy);
-    g.lineTo(x, y);
-    g.lineTo(x + dx, y);
-    g.stroke();
+function propagateEcef(satrec, date, gmst) {
+  const pv = satellite.propagate(satrec, date);
+  if (!pv.position || !isFinite(pv.position.x)) return null;
+  const geo = satellite.eciToGeodetic(pv.position, gmst);
+  return {
+    cartesian: Cesium.Cartesian3.fromDegrees(
+      satellite.degreesLong(geo.longitude),
+      satellite.degreesLat(geo.latitude),
+      geo.height * 1000,
+    ),
+    lat: satellite.degreesLat(geo.latitude),
+    lon: satellite.degreesLong(geo.longitude),
+    altKm: geo.height,
   };
-  draw(4, 4, 10, 10);
-  draw(44, 4, -10, 10);
-  draw(4, 44, 10, -10);
-  draw(44, 44, -10, -10);
-  return c;
 }
 
-let reticle = null;
-
-export function applyFleetFilter() {
-  for (const sat of state.sats) {
-    sat.entity.show = state.layers.sats && state.familiesOn[sat.rec.family] !== false;
+function punchColor(css) {
+  const c = Cesium.Color.fromCssColorString(css);
+  const max = Math.max(c.red, c.green, c.blue);
+  const min = Math.min(c.red, c.green, c.blue);
+  const l = (max + min) / 2;
+  const d = max - min;
+  let h = 0;
+  let s = 0;
+  if (d > 0.001) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === c.red) h = (c.green - c.blue) / d + (c.green < c.blue ? 6 : 0);
+    else if (max === c.green) h = (c.blue - c.red) / d + 2;
+    else h = (c.red - c.green) / d + 4;
+    h /= 6;
   }
+  return Cesium.Color.fromHsl(h, Math.min(1, s * 1.35 + 0.18), Math.min(0.62, Math.max(0.48, l)));
 }
 
-export function updateSatellites(date) {
-  if (!window.satellite) return;
+function baseAlpha(rec, selectedNorad) {
+  if (selectedNorad && rec.norad !== selectedNorad) return 0.28;
+  return 1;
+}
+
+function stylePoint(sat, selectedNorad) {
+  const alpha = state.layers.sats ? baseAlpha(sat.rec, selectedNorad) : 0;
+  const selected = sat.rec.norad === selectedNorad;
+  sat.point.color = sat.color.withAlpha(alpha);
+  sat.point.pixelSize = selected ? 14 : (sat.rec.coverage === "systematic" ? 11 : 8);
+  sat.point.outlineColor = Cesium.Color.WHITE.withAlpha(alpha);
+  sat.point.outlineWidth = selected ? 2 : 1;
+}
+
+function applyStyles() {
+  const selected = state.selectedSatellite && state.selectedSatellite.norad;
+  for (const sat of state.sats) stylePoint(sat, selected);
+  if (points) points.show = state.layers.sats;
+  if (orbitPrimitive) orbitPrimitive.show = state.layers.sats && Boolean(selected);
+}
+
+function bakeOrbit(sat, date) {
+  const viewer = state.viewer;
+  if (orbitPrimitive) {
+    viewer.scene.primitives.remove(orbitPrimitive);
+    orbitPrimitive = null;
+  }
+  const gmst = satellite.gstime(date);
+  const period = periodSeconds(sat.satrec);
+  const step = period / ORBIT_STEPS;
+  const positions = [];
+  const t0 = date.getTime();
+  for (let i = 0; i <= ORBIT_STEPS; i++) {
+    const t = new Date(t0 + i * step * 1000);
+    const pose = propagateEcef(sat.satrec, t, gmst);
+    if (pose) positions.push(pose.cartesian);
+  }
+  if (positions.length < 2) return;
+  const color = sat.color;
+  try {
+    orbitPrimitive = new Cesium.Primitive({
+      geometryInstances: new Cesium.GeometryInstance({
+        geometry: new Cesium.PolylineGeometry({
+          positions,
+          width: 2,
+          vertexFormat: Cesium.PolylineColorAppearance.VERTEX_FORMAT,
+        }),
+        attributes: {
+          color: Cesium.ColorGeometryInstanceAttribute.fromColor(color.withAlpha(0.7)),
+          depthFailColor: Cesium.ColorGeometryInstanceAttribute.fromColor(color.withAlpha(0.28)),
+        },
+      }),
+      appearance: new Cesium.PolylineColorAppearance({ translucent: true }),
+      depthFailAppearance: new Cesium.PolylineColorAppearance({ translucent: true }),
+      asynchronous: false,
+      allowPicking: false,
+    });
+  } catch {
+    orbitPrimitive = null;
+    return;
+  }
+  viewer.scene.primitives.add(orbitPrimitive);
+  orbitGmst = gmst;
+}
+
+function rotateOrbit(date) {
+  if (!orbitPrimitive) return;
+  const delta = satellite.gstime(date) - orbitGmst;
+  const rotation = Cesium.Matrix3.fromRotationZ(-delta, scratchRotation);
+  orbitPrimitive.modelMatrix = Cesium.Matrix4.fromRotationTranslation(
+    rotation,
+    Cesium.Cartesian3.ZERO,
+    scratchMatrix,
+  );
+}
+
+function tick() {
+  if (!window.satellite || !state.sats.length) return;
+  const date = clockDate();
   const gmst = satellite.gstime(date);
   for (const sat of state.sats) {
-    if (!sat.entity.show) continue;
-    const pv = satellite.propagate(sat.satrec, date);
-    if (!pv.position || !isFinite(pv.position.x)) continue;
-    const geo = satellite.eciToGeodetic(pv.position, gmst);
-    const lat = satellite.degreesLat(geo.latitude);
-    const lon = satellite.degreesLong(geo.longitude);
-    sat.entity.position = Cesium.Cartesian3.fromDegrees(lon, lat, geo.height * 1000);
-    sat.lat = lat;
-    sat.lon = lon;
-    sat.altKm = geo.height;
+    const pose = propagateEcef(sat.satrec, date, gmst);
+    if (!pose) continue;
+    sat.point.position = pose.cartesian;
+    sat.lat = pose.lat;
+    sat.lon = pose.lon;
+    sat.altKm = pose.altKm;
   }
-  const sel = state.selectedSatellite;
-  if (reticle && sel) {
-    const sat = state.sats.find((item) => item.rec.norad === sel.norad);
-    if (sat) reticle.position = sat.entity.position;
-  }
+  rotateOrbit(date);
+}
+
+export function applyFleetFilter() {
+  applyStyles();
 }
 
 export function selectSatellite(rec) {
-  set({ selectedSatellite: rec });
-  if (reticle) state.viewer.entities.remove(reticle);
+  set({ selectedSatellite: rec, selectedDetection: null });
   const sat = state.sats.find((item) => item.rec.norad === rec.norad);
   if (!sat) return;
-  reticle = state.viewer.entities.add({
-    position: sat.entity.position,
-    billboard: {
-      image: reticleCanvas(),
-      width: 36,
-      height: 36,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY,
-    },
-  });
+  bakeOrbit(sat, clockDate());
+  applyStyles();
 }
 
 export function clearSatelliteSelection() {
   set({ selectedSatellite: null });
-  if (reticle) {
-    state.viewer.entities.remove(reticle);
-    reticle = null;
+  if (orbitPrimitive && state.viewer) {
+    state.viewer.scene.primitives.remove(orbitPrimitive);
+    orbitPrimitive = null;
   }
+  applyStyles();
 }
 
 export async function loadSatellites() {
   const data = await getJSON("/api/satellites");
   const viewer = state.viewer;
-  const families = {};
+  if (points) viewer.scene.primitives.remove(points);
+  points = new Cesium.PointPrimitiveCollection();
+  viewer.scene.primitives.add(points);
   const sats = [];
   for (const rec of data.satellites) {
     let satrec;
@@ -105,65 +176,25 @@ export async function loadSatellites() {
     } catch {
       continue;
     }
+    const color = punchColor(rec.color);
     const systematic = rec.coverage === "systematic";
-    const entity = viewer.entities.add({
-      name: rec.name,
+    const point = points.add({
       position: Cesium.Cartesian3.fromDegrees(0, 0, 700000),
-      billboard: systematic
-        ? {
-            image: diamond(rec.color),
-            width: 10,
-            height: 10,
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          }
-        : undefined,
-      point: systematic
-        ? undefined
-        : {
-            pixelSize: 3,
-            color: Cesium.Color.fromCssColorString(rec.color).withAlpha(0.5),
-            disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          },
-      label: {
-        text: systematic ? rec.name : "",
-        font: "11px JetBrains Mono, monospace",
-        fillColor: Cesium.Color.fromCssColorString("#e6eaf0"),
-        show: systematic,
-        pixelOffset: new Cesium.Cartesian2(10, -8),
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        scaleByDistance: new Cesium.NearFarScalar(8e5, 1, 2e7, 0.3),
-      },
+      pixelSize: systematic ? 11 : 8,
+      color,
+      outlineColor: Cesium.Color.WHITE,
+      outlineWidth: 1,
+      scaleByDistance: new Cesium.NearFarScalar(1.2e6, 1.35, 2.4e7, 0.75),
+      id: { satellite: rec },
     });
-    entity.satellite = rec;
-    sats.push({ rec, satrec, entity });
-    families[rec.family] = families[rec.family] || { count: 0, coverage: rec.coverage, color: rec.color };
-    families[rec.family].count += 1;
+    sats.push({ rec, satrec, point, color });
     state.familiesOn[rec.family] = true;
   }
   set({ catalog: data, sats });
-  const skipped = (data.skipped || []).filter((row) => row.reason && !/not a SAR mission/.test(row.reason));
-  $("catalog-status").textContent =
-    `${data.count} SAR objects · CelesTrak ${data.origin || ""} ${data.fetched_at || ""}`.trim();
-  const box = $("families");
-  box.innerHTML = "";
-  Object.keys(families).sort().forEach((name) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "chip on";
-    btn.textContent = `${name} ${families[name].count}`;
-    btn.addEventListener("click", () => {
-      state.familiesOn[name] = !state.familiesOn[name];
-      btn.classList.toggle("on", state.familiesOn[name]);
-      applyFleetFilter();
-    });
-    box.appendChild(btn);
-  });
-  if (skipped.length) {
-    const note = document.createElement("p");
-    note.className = "hint";
-    note.textContent = skipped.slice(0, 4).map((row) => `${row.name || "query"}: ${row.reason}`).join(" ");
-    box.after(note);
+  if (!preRenderRemove) {
+    preRenderRemove = viewer.scene.preRender.addEventListener(tick);
   }
+  tick();
   return data;
 }
 
@@ -171,6 +202,7 @@ export function flyToSelection() {
   const rec = state.selectedSatellite;
   const sat = rec && state.sats.find((item) => item.rec.norad === rec.norad);
   if (!sat || sat.lon == null) return;
+  state.viewer.trackedEntity = undefined;
   state.viewer.camera.flyTo({
     destination: Cesium.Cartesian3.fromDegrees(sat.lon, sat.lat, Math.max(400000, (sat.altKm || 700) * 400)),
     duration: 2.5,

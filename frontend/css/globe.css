@@ -1,7 +1,7 @@
 .cesium-viewer-bottom {
-  left: var(--s3) !important;
-  bottom: 52px !important;
-  max-width: 46%;
+  left: var(--s4) !important;
+  bottom: 8px !important;
+  max-width: 42%;
 }
 .cesium-widget-credits,
 .cesium-credit-textContainer,
@@ -22,3 +22,18 @@
 
 #hud-chips { display: flex; flex-wrap: wrap; gap: var(--s1); pointer-events: none; }
 #hud-chips .chip { margin: 0; }
+
+#app:has(#timeline:not([hidden])) .cesium-viewer-bottom {
+  bottom: calc(var(--timeline-h) + 8px) !important;
+}
+#app:has(#timeline:not([hidden])) #hud,
+#app:has(#timeline:not([hidden])) #legend {
+  bottom: calc(56px + var(--timeline-h));
+}
+#app:has(#timeline[hidden]) #hud,
+#app:has(#timeline[hidden]) #legend {
+  bottom: 56px;
+}
+#app:has(#timeline[hidden]) .cesium-viewer-bottom {
+  bottom: 8px !important;
+}

@@ -26,6 +26,26 @@ def test_registry_fields_and_access_values():
         assert "verified_at" in spec
 
 
+def test_new_sar_names_classify_and_optical_lookalikes_do_not():
+    from darkwatch.catalog.families import classify, exclusion_reason
+
+    assert classify("ARIRANG-5 (KOMPSAT-5)").family == "KOMPSAT-5"
+    assert classify("KOMPSAT-3A") is None
+    assert classify("JILIN-1 GAOFEN 3A") is None
+    assert classify("GAOFEN-3 02").family == "Gaofen-3"
+    assert classify("NOVASAR 1").family == "NovaSAR"
+    assert classify("STRIX-1").family == "StriX"
+    assert classify("QPS-SAR-5 (TSUKUYOMI-I)").family == "QPS-SAR"
+    assert classify("ASNARO") is None
+    assert classify("ASNARO-2").family == "ASNARO-2"
+    assert classify("MARISAT 1") is None
+    assert classify("RISAT-2B").family == "RISAT-2"
+    assert classify("EOS-4").family == "EOS-04"
+    assert classify("HAIYANG-3A").family == "Haiyang-3"
+    assert classify("PIESAT-1 A").family == "PIESAT"
+    assert "RISAT-1" in (exclusion_reason("RISAT-1") or "")
+
+
 def test_sentinel1_deep_links_include_point_and_window():
     when = datetime(2026, 11, 2, 5, 23, 46, tzinfo=timezone.utc)
     cop = copernicus_browser_url(56.9, 11.875, when)

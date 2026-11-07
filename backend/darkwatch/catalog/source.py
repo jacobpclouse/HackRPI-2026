@@ -45,6 +45,16 @@ NAME_QUERIES = [
     "ALOS-2",
     "ALOS-4",
     "SAOCOM",
+    "KOMPSAT-5",
+    "NOVASAR",
+    "RISAT-2",
+    "EOS-4",
+    "ASNARO-2",
+    "STRIX",
+    "QPS-SAR",
+    "GAOFEN-3",
+    "HAIYANG-3",
+    "PIESAT",
 ]
 
 _lock = threading.Lock()

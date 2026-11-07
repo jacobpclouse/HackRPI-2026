@@ -188,5 +188,135 @@
     ],
     "note": "Commercial tasking; an open-data sample is on AWS (CC BY 4.0).",
     "verified_at": "2026-11-07"
+  },
+  "KOMPSAT-5": {
+    "name": "KOMPSAT-5 (Arirang-5)",
+    "operator": "KARI",
+    "country": "South Korea",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "ESA KOMPSAT-5", "url": "https://earth.esa.int/eogateway/missions/kompsat-5"}
+    ],
+    "note": "X-band SAR. KOMPSAT-1/2/3/7 are optical and are not in this catalog.",
+    "verified_at": null
+  },
+  "NovaSAR": {
+    "name": "NovaSAR-1",
+    "operator": "SSTL / CSIRO",
+    "country": "UK / Australia",
+    "band": "S",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "SSTL NovaSAR-1", "url": "https://www.sstl.co.uk/missions/novasar-1"}
+    ],
+    "note": "S-band smallsat. Tasked; some research access via partners.",
+    "verified_at": null
+  },
+  "RISAT-2": {
+    "name": "RISAT-2B class",
+    "operator": "ISRO",
+    "country": "India",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "ISRO", "url": "https://www.isro.gov.in"}
+    ],
+    "note": "RISAT-2B / 2BR1 / 2BR2. Tasked X-band. RISAT-1 is retired and excluded.",
+    "verified_at": null
+  },
+  "EOS-04": {
+    "name": "EOS-04 (RISAT-1A)",
+    "operator": "ISRO",
+    "country": "India",
+    "band": "C",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "ISRO", "url": "https://www.isro.gov.in"}
+    ],
+    "note": "C-band follow-on to RISAT-1. Treated as possible coverage; no acquisition plan is packaged.",
+    "verified_at": null
+  },
+  "ASNARO-2": {
+    "name": "ASNARO-2",
+    "operator": "USEF / NEC",
+    "country": "Japan",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "commercial",
+    "links": [
+      {"label": "JAXA EORC", "url": "https://www.eorc.jaxa.jp"}
+    ],
+    "note": "X-band smallsat. ASNARO-1 is optical and ignored.",
+    "verified_at": null
+  },
+  "StriX": {
+    "name": "StriX",
+    "operator": "Synspective",
+    "country": "Japan",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "commercial",
+    "links": [
+      {"label": "Synspective", "url": "https://synspective.com"}
+    ],
+    "note": "Commercial X-band smallsat fleet. Orbits are public; imagery is not.",
+    "verified_at": null
+  },
+  "QPS-SAR": {
+    "name": "QPS-SAR",
+    "operator": "iQPS",
+    "country": "Japan",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "commercial",
+    "links": [
+      {"label": "iQPS", "url": "https://i-qps.com"}
+    ],
+    "note": "Commercial X-band smallsat fleet. Orbits are public; imagery is not.",
+    "verified_at": null
+  },
+  "Gaofen-3": {
+    "name": "Gaofen-3",
+    "operator": "CNSA / NSOAS",
+    "country": "China",
+    "band": "C",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "CNSA", "url": "https://www.cnsa.gov.cn"}
+    ],
+    "note": "Civil C-band SAR. Treated as possible coverage. Jilin-1 Gaofen optical satellites are excluded.",
+    "verified_at": null
+  },
+  "Haiyang-3": {
+    "name": "Haiyang-3",
+    "operator": "NSOAS",
+    "country": "China",
+    "band": "C",
+    "coverage": "tasked",
+    "access": "restricted",
+    "links": [
+      {"label": "CNSA", "url": "https://www.cnsa.gov.cn"}
+    ],
+    "note": "Ocean-oriented C-band SAR. Treated as possible coverage; no plan is packaged.",
+    "verified_at": null
+  },
+  "PIESAT": {
+    "name": "PIESAT (Hongtu)",
+    "operator": "PIESAT",
+    "country": "China",
+    "band": "X",
+    "coverage": "tasked",
+    "access": "commercial",
+    "links": [
+      {"label": "PIESAT", "url": "https://www.piesat.cn"}
+    ],
+    "note": "Interferometric X-band smallsat fleet. Orbits are public; imagery is not.",
+    "verified_at": null
   }
 }
