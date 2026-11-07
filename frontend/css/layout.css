@@ -28,11 +28,16 @@ header button {
 .wordmark {
   border: 0;
   padding: 0;
-  letter-spacing: 0.2em;
-  font-size: var(--fs-title);
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--text);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  height: 28px;
+}
+.wordmark img {
+  height: 28px;
+  width: auto;
+  display: block;
+  mix-blend-mode: screen;
 }
 
 .clock-cluster {
