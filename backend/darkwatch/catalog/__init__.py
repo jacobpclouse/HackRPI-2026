@@ -8,6 +8,7 @@ from darkwatch.catalog.families import (
     classify,
     exclusion_reason,
 )
+from darkwatch.catalog.missions import deep_links, for_family, load_missions
 from darkwatch.catalog.records import Catalog, SatRecord, record_from_omm, satrec_for
 from darkwatch.catalog.source import (
     CELESTRAK,
@@ -31,8 +32,11 @@ __all__ = [
     "SatRecord",
     "cache_path",
     "classify",
+    "deep_links",
     "exclusion_reason",
+    "for_family",
     "get_catalog",
+    "load_missions",
     "read",
     "record_from_omm",
     "satrec_for",

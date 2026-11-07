@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException
 
 from darkwatch.catalog import SYSTEMATIC_FAMILIES, get_catalog
+from darkwatch.catalog.missions import deep_links, load_missions
 from darkwatch.geo import REGIONS
 from darkwatch.orbit import parse_time, swath_polygon
 
@@ -37,6 +38,26 @@ def satellites(refresh: bool = False):
         "satellites": [sat.to_public() for sat in cat.satellites],
         "skipped": cat.skipped,
     }
+
+
+@router.get("/api/missions")
+def missions(
+    family: str | None = None,
+    lat: float | None = None,
+    lon: float | None = None,
+    at: str | None = None,
+):
+    registry = load_missions()
+    if family is None:
+        return {"missions": registry}
+    spec = registry.get(family)
+    if spec is None:
+        raise HTTPException(404, f"No mission registry entry for {family}")
+    out = dict(spec)
+    if lat is not None and lon is not None:
+        when = parse_time(at) if at else datetime.now(timezone.utc)
+        out["deep_links"] = deep_links(family, lat, lon, when)
+    return out
 
 
 @router.get("/api/swath")
