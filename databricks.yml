@@ -1,0 +1,36 @@
+bundle:
+  name: darkwatch
+
+include:
+  - databricks/resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for DarkWatch Delta tables.
+    default: workspace
+  schema:
+    description: Schema created for DarkWatch tables.
+    default: darkwatch
+  warehouse_id:
+    description: >-
+      Serverless SQL warehouse the app service principal may use. No default:
+      pass --var warehouse_id=<id> or set BUNDLE_VAR_warehouse_id.
+
+sync:
+  exclude:
+    - data/raw
+    - data/cache
+    - .venv
+    - backend/tests
+    - docs/screenshots
+    - "**/__pycache__"
+
+# The workspace host comes from the CLI profile or DATABRICKS_HOST.
+# Production mode keeps the app name `darkwatch` and the job name
+# `darkwatch_refresh`. Development mode would prefix both.
+targets:
+  prod:
+    default: true
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

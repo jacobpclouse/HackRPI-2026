@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DarkWatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/";</script>
+  <link href="https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  <link href="/css/tokens.css" rel="stylesheet" />
+  <link href="/css/base.css" rel="stylesheet" />
+  <link href="/css/layout.css" rel="stylesheet" />
+  <link href="/css/components.css" rel="stylesheet" />
+  <link href="/css/globe.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <button type="button" id="wordmark" class="wordmark">DARKWATCH</button>
+      <div class="clock-cluster">
+        <span id="utc" class="data">00:00:00</span>
+        <span id="badge" class="badge live">LIVE</span>
+        <span id="offset" class="data muted" hidden></span>
+        <button type="button" id="speed" title="Simulation speed">1×</button>
+        <button type="button" id="live" hidden>Live</button>
+        <span id="status-dot" class="status-dot" title="Data sources"></span>
+      </div>
+    </header>
+
+    <main>
+      <div id="cesium"></div>
+
+      <div id="hud">
+        <div id="hud-cursor" class="data">—</div>
+        <div id="hud-alt" class="data">—</div>
+        <div id="hud-tip" class="data" hidden></div>
+        <div id="hud-chips"></div>
+      </div>
+
+      <div id="dock">
+        <button type="button" id="place-kattegat">Kattegat</button>
+        <button type="button" id="dock-sats" class="on">Satellites</button>
+        <button type="button" id="dock-ais" class="on">AIS</button>
+        <button type="button" id="dock-det" class="on">Detections</button>
+      </div>
+
+      <aside id="legend" hidden></aside>
+
+      <aside id="card" hidden>
+        <div class="card-head">
+          <h2 id="card-title"></h2>
+          <button type="button" id="card-close">Close</button>
+        </div>
+        <div id="card-body"></div>
+      </aside>
+
+      <section id="timeline" hidden>
+        <div class="timeline-head">
+          <strong id="tl-title">Coverage</strong>
+          <span id="tl-gap" class="hero-inline"></span>
+        </div>
+        <canvas id="tl-canvas" height="40"></canvas>
+      </section>
+    </main>
+  </div>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <dialog id="shortcuts">
+    <h2>KEYBOARD</h2>
+    <dl>
+      <div><dt>K</dt><dd>Kattegat</dd></div>
+      <div><dt>Space</dt><dd>Play / pause</dd></div>
+      <div><dt>L</dt><dd>Return to live</dd></div>
+      <div><dt>F</dt><dd>Fly to selection</dd></div>
+      <div><dt>Esc</dt><dd>Clear selection</dd></div>
+      <div><dt>?</dt><dd>This sheet</dd></div>
+    </dl>
+    <form method="dialog"><button type="submit">Close</button></form>
+  </dialog>
+
+  <script src="/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/Cesium.js"></script>
+  <script src="/vendor/satellite.min.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

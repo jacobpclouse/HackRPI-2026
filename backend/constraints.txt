@@ -1,0 +1,42 @@
+# Single source of truth for every version pin. requirements*.txt list names
+# only and start with `-c constraints.txt`. The refresh job YAML
+# (databricks/resources/darkwatch_refresh.job.yml) repeats the job subset;
+# tests/test_pins.py fails if the two disagree.
+#
+# Conflicts that existed before this file (app pin vs job pin), and the choice:
+#   numpy            2.4.6 vs 2.5.4  -> 2.5.4  newer; full test suite passes, pip check clean
+#   scipy            1.17.1 vs 1.18.1 -> 1.18.1 newer; CFAR and binomtest tests pass
+#   psycopg[binary]  3.3.8 vs 3.2.6  -> 3.3.8  newer; imports cleanly next to rasterio 1.5.2 / GDAL 3.12
+#   python-dateutil  2.9.0.post0 vs 4.0.0 -> 2.9.0.post0  OLDER on purpose:
+#                    databricks-sql-connector 4.9.0 cannot be installed with dateutil 4.x
+#                    (pip ResolutionImpossible), and the app needs the connector.
+
+# --- app runtime (requirements.txt) ---
+fastapi==0.162.2
+uvicorn==0.54.0
+httpx==0.28.1
+numpy==2.5.4
+scipy==1.18.1
+shapely==2.2.0
+sgp4==2.27
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.4
+duckdb==2.0.0
+# psycopg[binary] in requirements; constraints cannot carry extras, so both halves are pinned.
+psycopg==3.3.8
+psycopg-binary==3.3.8
+databricks-sdk==0.162.0
+databricks-sql-connector==4.9.0
+
+# --- refresh job and `make prepare` (requirements-job.txt) ---
+pillow==13.0.0
+rasterio==1.5.2
+pyproj==3.8.0
+pyshp==3.1.7
+planetary-computer==1.0.0
+pystac-client==0.9.1
+
+# --- dev (requirements-dev.txt) ---
+pytest==9.2.0
+pyyaml==6.0.3
+ruff==0.17.4

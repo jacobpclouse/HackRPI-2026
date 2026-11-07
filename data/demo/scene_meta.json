@@ -1,0 +1,37 @@
+{
+  "scene_id": "S1D_IW_GRDH_1SDV_20261102T052330_20261102T052402_005284_00A0D2_rtc",
+  "collection": "sentinel-1-rtc",
+  "platform": "sentinel-1d",
+  "datetime": "2026-11-02T05:23:46.688002Z",
+  "start_datetime": "2026-11-02T05:23:30.456686Z",
+  "end_datetime": "2026-11-02T05:24:02.919317Z",
+  "orbit_state": "descending",
+  "relative_orbit": 168,
+  "bbox": [
+    11.45,
+    56.6,
+    12.3,
+    57.2
+  ],
+  "width": 1722,
+  "height": 2226,
+  "crs": "EPSG:4326",
+  "resolution_m": 30.0,
+  "transform": [
+    0.0004936120789779335,
+    0.0,
+    11.45,
+    0.0,
+    -0.00026954177897574186,
+    57.2
+  ],
+  "valid_fraction": 0.937,
+  "vv_percentiles": {
+    "p50": 0.007882600650191307,
+    "p99": 0.16152715682983398
+  },
+  "source": "Microsoft Planetary Computer sentinel-1-rtc, SAS-signed, no account",
+  "asset": "vv",
+  "preview": "scene_preview.png",
+  "array": "scene_vv.npz"
+}

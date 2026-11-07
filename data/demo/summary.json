@@ -1,0 +1,20 @@
+{
+  "scene_id": "S1D_IW_GRDH_1SDV_20261102T052330_20261102T052402_005284_00A0D2_rtc",
+  "scene_time": "2026-11-02T05:23:46Z",
+  "bbox": [
+    11.45,
+    56.6,
+    12.3,
+    57.2
+  ],
+  "detections": 21,
+  "matched": 18,
+  "unmatched": 3,
+  "ais_vessels_with_pings": 255,
+  "ais_interpolated_for_match": 94,
+  "match_radius_km": 3.0,
+  "match_max_gap_s": 600,
+  "detector": "CA-CFAR",
+  "ais_source": "http://aisdata.ais.dk.s3.eu-central-1.amazonaws.com/aisdk-2026-11-02.zip",
+  "note": "Unmatched means not matched to Danish Maritime Authority public AIS. It is not evidence of wrongdoing."
+}

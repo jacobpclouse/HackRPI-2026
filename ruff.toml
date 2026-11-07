@@ -1,0 +1,15 @@
+target-version = "py312"
+line-length = 120
+extend-exclude = ["backend/databricks", "frontend"]
+
+[lint]
+select = ["E", "F", "W", "I", "B"]
+# E501: long strings in user-facing copy are fine. B008: FastAPI Query() defaults.
+ignore = ["E501", "B008"]
+
+[lint.per-file-ignores]
+# The ASCII logo frames keep their original trailing spaces.
+"run.py" = ["W291", "W293"]
+
+[lint.isort]
+known-first-party = ["darkwatch"]
