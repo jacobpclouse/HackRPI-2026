@@ -255,7 +255,11 @@ def run(argv: list[str] | None = None) -> None:
 
     # Load libpq before GDAL/rasterio to avoid bundled native-library collisions.
 
-    import prepare_demo as prep
+    from prepare import Target
+    from prepare.ais_step import filter_ais, load_tracks, tracks_geojson
+    from prepare.detect_step import match_all, run_cfar
+    from prepare.mpa_step import run as run_mpa
+    from prepare.scene_step import clip_scene
     from pyspark.sql import SparkSession
 
     from darkwatch.geo import by_id
@@ -271,32 +275,29 @@ def run(argv: list[str] | None = None) -> None:
     if bundled_mpa.exists() and not (work / "mpas.geojson").exists():
         (work / "mpas.geojson").write_bytes(bundled_mpa.read_bytes())
 
-    prep.DEMO = work
-    prep.BBOX = bbox
-    prep.SCENE_ID = feature["id"]
-    prep.SCENE_TIME = acquired.replace(microsecond=0)
-    prep.AIS_URL = feature["_ais_url"]
-    logger.info(f"scene {prep.SCENE_ID} ais {prep.AIS_URL}")
+    target = Target(
+        scene_id=feature["id"],
+        scene_time=acquired.replace(microsecond=0),
+        bbox=bbox,
+        ais_url=feature["_ais_url"],
+        out_dir=work,
+        raw_dir=Path("/tmp/darkwatch-raw"),
+    )
+    target.raw_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"scene {target.scene_id} ais {target.ais_url}")
 
-    meta = prep.clip_scene(force=True)
-    detections = prep.run_cfar(meta, force=True)
-    ais_zip = Path("/tmp/darkwatch-raw") / f"aisdk-{feature['_ais_day']}.zip"
-    ais_zip.parent.mkdir(parents=True, exist_ok=True)
-    ais_path = prep.filter_ais(ais_zip, force=True)
-    tracks = prep.load_tracks(ais_path)
-    (work / "ais_tracks.geojson").write_text(json.dumps(prep.tracks_geojson(tracks)))
-    mpas = json.loads((work / "mpas.geojson").read_text()) if (work / "mpas.geojson").exists() else {"features": []}
+    meta = clip_scene(target, force=True)
+    detections = run_cfar(target, meta, force=True)
+    ais_zip = target.ais_zip_path()
+    ais_path = filter_ais(target, ais_zip, force=True)
+    tracks = load_tracks(ais_path)
+    (work / "ais_tracks.geojson").write_text(json.dumps(tracks_geojson(tracks, bbox)))
     try:
-        from darkwatch.geo import fetch_natura2000, simplify_collection
-
-        west, south, east, north = bbox
-        fresh = simplify_collection(fetch_natura2000((west - 0.4, south - 0.4, east + 0.4, north + 0.4)))
-        if fresh.get("features"):
-            mpas = fresh
-            (work / "mpas.geojson").write_text(json.dumps(fresh))
+        mpas = run_mpa(target, force=True)
     except Exception as exc:
         logger.warning(f"MPA refresh skipped: {exc}")
-    result = prep.match_all(detections, tracks, mpas)
+        mpas = json.loads((work / "mpas.geojson").read_text()) if (work / "mpas.geojson").exists() else {"features": []}
+    result = match_all(target, detections, tracks, mpas)
     (work / "matches.json").write_text(json.dumps(result["detections"]))
     (work / "summary.json").write_text(json.dumps(result["summary"]))
     summary = result["summary"]

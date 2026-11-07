@@ -21,7 +21,7 @@ from darkwatch import config  # noqa: E402
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
-    uvicorn.run("darkwatch.server:app", host="0.0.0.0", port=config.port(), app_dir=str(BACKEND))
+    uvicorn.run("darkwatch.api:create_app", factory=True, host="0.0.0.0", port=config.port(), app_dir=str(BACKEND))
 
 
 if __name__ == "__main__":
