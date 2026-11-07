@@ -7,7 +7,7 @@ import time
 
 NAME_OF_SCRIPT_TO_RUN = "mainBackend.py"
 VIRT_ENV_NAME = ".venv"
-PACKAGES_TO_INSTALL_ARRAY = ["pandas"]# you can just keep adding to this like "pandas==2.1", "PIL==1.01", etc
+PACKAGES_TO_INSTALL_ARRAY = ["Flask"]  # you can just keep adding to this like "pandas==2.1", "PIL==1.01", etc
 
 
 def clear_screen():
