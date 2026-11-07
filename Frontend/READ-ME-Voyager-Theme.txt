@@ -1,0 +1,31 @@
+
+/// voyager.html ///
+
+****** Voyager Theme Panel-1 Animation & Colors ******
+
+The top left panel changes color between blue (--science-blue) and gold (--command-gold). If you don't want this color-change animation, you can turn it off by changing the class name in HTML from *animation-on* to *animation-off*. When animation is off, the default color is gold. If you prefer blue as the static color, add the class name *panel-blue*. See below.
+
+1. Turn Off Animation:
+
+<button onclick="playSoundAndRedirect('audio2', '')" class="panel-1 animation-off">LCARS <span class="hop">&nbsp;40457</span></button>
+
+2. Turn off animation and change color from default gold to blue:
+
+<button onclick="playSoundAndRedirect('audio2', '')" class="panel-1 animation-off panel-blue">LCARS <span class="hop">&nbsp;40457</span></button>
+
+
+****** Keep or Delete 4-Button Section + Animated Buttons Control ******
+
+This section refers to the 4 buttons grouped together at the top-right of the page.
+
+My reference material (screen-grabs from the show) did not have this group of buttons. To remove them so that the theme more closely resembles cannon, simply delete the <nav> element and all of its contents:
+
+<nav>
+<button onclick="playSoundAndRedirect('audio2', '')" class="nav-1 animation-on">01-57585</button>
+<button onclick="playSoundAndRedirect('audio2', '')" class="nav-2 animation-on">02-394</button>
+<button onclick="playSoundAndRedirect('audio2', '')" class="nav-3">03-2187</button>
+<button onclick="playSoundAndRedirect('audio2', '')" class="nav-4 animation-on">04-47219</button>						
+</nav>
+
+If you want to keep the buttons but want to disable a button's color-changing or blinking animation, use the same process as the panel-1 button above: Change class name from *animation-on* to *animation-off*.
+
