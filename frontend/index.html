@@ -6,92 +6,118 @@
   <title>DarkWatch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <script>
-    window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/";
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>window.CESIUM_BASE_URL = "https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/";</script>
   <link href="https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
-  <link href="/styles.css" rel="stylesheet" />
+  <link href="/css/tokens.css" rel="stylesheet" />
+  <link href="/css/base.css" rel="stylesheet" />
+  <link href="/css/layout.css" rel="stylesheet" />
+  <link href="/css/components.css" rel="stylesheet" />
+  <link href="/css/globe.css" rel="stylesheet" />
 </head>
 <body>
+  <div id="boot" hidden>
+    <p class="wordmark">DARKWATCH</p>
+    <ol id="boot-log" class="boot-log"></ol>
+    <p class="micro muted">Press any key to skip</p>
+  </div>
+
   <div id="app">
     <header>
-      <div class="brand">
-        <span class="mark" aria-hidden="true"></span>
-        <div>
-          <h1>DarkWatch</h1>
-          <p>When the radar is overhead, and when it is not</p>
-        </div>
-      </div>
-      <nav class="steps" aria-label="Demo steps">
-        <button type="button" data-step="globe" class="active">1 Globe</button>
-        <button type="button" data-step="passes">2 Passes</button>
-        <button type="button" data-step="scene">3 Scene</button>
-        <button type="button" data-step="gaps">4 Gaps</button>
+      <p class="wordmark">DARKWATCH</p>
+      <nav class="modes" aria-label="Modes">
+        <button type="button" data-mode="orbit" class="active"><span class="num">01</span> ORBIT</button>
+        <button type="button" data-mode="coverage"><span class="num">02</span> COVERAGE</button>
+        <button type="button" data-mode="scene"><span class="num">03</span> SCENE</button>
+        <button type="button" data-mode="analysis"><span class="num">04</span> ANALYSIS</button>
       </nav>
-      <div class="header-actions">
-        <button type="button" id="narrate">Narrate flyover</button>
-        <span id="clock" class="mono"></span>
-        <span id="clock-mode" class="clock-mode live">LIVE</span>
-        <button type="button" id="live" hidden>Return to live (L)</button>
+      <div class="clock-cluster">
+        <span id="utc" class="data">00:00:00</span>
+        <span id="badge" class="badge live">LIVE</span>
+        <span id="offset" class="data muted" hidden></span>
+        <button type="button" id="speed" title="Simulation speed">1×</button>
+        <button type="button" id="live" hidden>Return to live</button>
+        <span id="status-dot" class="status-dot" title="Data sources"></span>
       </div>
     </header>
-    <div class="layout">
+
+    <div class="workspace">
       <aside id="rail">
         <section>
-          <h2>Ocean regions</h2>
+          <h2>01 / REGIONS</h2>
           <div id="regions"></div>
-          <p class="hint">Or click open water on the globe.</p>
+          <p class="hint">Click open water on the globe, or pick a region.</p>
         </section>
         <section>
-          <h2>Basemap and clock</h2>
-          <div class="row">
-            <button type="button" id="basemap" data-mode="imagery">Imagery</button>
-            <button type="button" id="speed" data-rate="1">1×</button>
-          </div>
+          <h2>02 / FLEETS</h2>
+          <p id="catalog-status" class="hint">Loading catalog.</p>
+          <div id="families"></div>
         </section>
         <section>
-          <h2>Show</h2>
+          <h2>03 / LAYERS</h2>
           <label class="check"><input type="checkbox" id="toggle-sats" checked /> Satellites</label>
           <label class="check"><input type="checkbox" id="toggle-mpa" checked /> Protected areas</label>
           <label class="check"><input type="checkbox" id="toggle-ais" checked /> AIS tracks</label>
           <label class="check"><input type="checkbox" id="toggle-det" checked /> Detections</label>
+          <label class="check"><input type="checkbox" id="toggle-possible" /> Tasked possible coverage</label>
         </section>
         <section>
-          <h2>SAR catalog</h2>
-          <p id="catalog-status" class="hint">Loading orbits…</p>
-          <div id="families"></div>
+          <h2>04 / BASEMAP</h2>
+          <div class="row">
+            <button type="button" id="basemap">Imagery</button>
+            <button type="button" id="narrate">Narrate flyover</button>
+          </div>
         </section>
       </aside>
+
       <main>
         <div id="cesium"></div>
-        <div id="banner" hidden></div>
-        <section id="timeline" aria-live="polite">
-          <div class="timeline-head">
-            <strong id="tl-title">Select a region</strong>
-            <span id="tl-gap" class="gap-call"></span>
-          </div>
-          <div id="tl-bar" class="tl-bar"></div>
-          <div id="tl-axis" class="tl-axis mono"></div>
-          <p id="tl-note" class="hint"></p>
-        </section>
+        <div id="hud">
+          <div id="hud-cursor" class="data">—</div>
+          <div id="hud-alt" class="data">—</div>
+          <div id="hud-tip" class="data" hidden></div>
+          <div id="hud-chips"></div>
+        </div>
       </main>
-      <aside id="detail">
-        <h2 id="detail-title">Watch floor</h2>
+
+      <aside id="inspector">
+        <h2 id="detail-title">01 / INSPECTOR</h2>
         <div id="detail-body">
-          <p>Satellites are propagated live with satellite.js from CelesTrak GP elements. Click one to draw its approximate radar swath, offset from the ground track.</p>
+          <p>Satellites are propagated with satellite.js from CelesTrak GP elements. Click one for its mission registry entry and an approximate radar swath, offset from the ground track.</p>
           <p class="ethics">Unmatched means not matched to public AIS. It is not evidence of wrongdoing.</p>
         </div>
       </aside>
     </div>
-    <footer>
-      <span>Unmatched ≠ wrongdoing. Red marks are potential dark vessels: radar returns without public AIS.</span>
-      <span class="mono" id="footer-src">CelesTrak · Planetary Computer · Danish AIS · EEA Natura 2000</span>
-    </footer>
+
+    <section id="timeline" aria-live="polite">
+      <div class="timeline-head">
+        <strong id="tl-title">Select a region</strong>
+        <span id="tl-gap" class="hero-inline"></span>
+      </div>
+      <canvas id="tl-canvas" height="72"></canvas>
+      <p id="tl-note" class="hint">48-hour coverage window. Drag the playhead to scrub. Tasked ticks never close a gap.</p>
+    </section>
   </div>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <dialog id="shortcuts">
+    <h2>KEYBOARD</h2>
+    <dl>
+      <div><dt>1–4</dt><dd>Modes</dd></div>
+      <div><dt>Space</dt><dd>Play / pause</dd></div>
+      <div><dt>L</dt><dd>Return to live</dd></div>
+      <div><dt>F</dt><dd>Fly to selection</dd></div>
+      <div><dt>Esc</dt><dd>Clear selection</dd></div>
+      <div><dt>[ ]</dt><dd>Collapse panels</dd></div>
+      <div><dt>?</dt><dd>This sheet</dd></div>
+    </dl>
+    <form method="dialog"><button type="submit">Close</button></form>
+  </dialog>
+
   <script src="/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/cesium@1.124/Build/Cesium/Cesium.js"></script>
   <script src="/vendor/satellite.min.js"></script>
-  <script src="/app.js"></script>
+  <script type="module" src="/js/main.js"></script>
 </body>
 </html>

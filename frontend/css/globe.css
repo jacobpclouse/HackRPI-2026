@@ -1,0 +1,24 @@
+.cesium-viewer-bottom {
+  left: var(--s3) !important;
+  bottom: 52px !important;
+  max-width: 46%;
+}
+.cesium-widget-credits,
+.cesium-credit-textContainer,
+.cesium-credit-logoContainer {
+  font-size: 10px !important;
+  color: var(--text-3) !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+.cesium-viewer-toolbar,
+.cesium-viewer-animationContainer,
+.cesium-viewer-timelineContainer,
+.cesium-viewer-fullscreenContainer,
+.cesium-infoBox,
+.cesium-selection-wrapper {
+  display: none !important;
+}
+
+#hud-chips { display: flex; flex-wrap: wrap; gap: var(--s1); pointer-events: none; }
+#hud-chips .chip { margin: 0; }
