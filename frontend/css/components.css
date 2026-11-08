@@ -238,3 +238,39 @@
   font-size: var(--fs-small);
 }
 #shortcuts dd { margin: 0; color: var(--text-2); }
+
+.case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s3);
+  align-items: center;
+}
+.case-actions a {
+  color: var(--text);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  margin: var(--s3) 0;
+}
+.plan-pass {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--fs-small);
+  padding: var(--s2);
+}
+.plan-pass.on {
+  border-color: var(--coverage);
+  color: var(--text);
+}

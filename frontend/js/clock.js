@@ -59,6 +59,12 @@ export function setTime(date) {
   publish();
 }
 
+export function setSimTime(date) {
+  viewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(date));
+  viewer.clock.shouldAnimate = false;
+  publish();
+}
+
 export function beginScrub() {
   speedBeforeScrub = viewer.clock.multiplier || 1;
   viewer.clock.shouldAnimate = false;

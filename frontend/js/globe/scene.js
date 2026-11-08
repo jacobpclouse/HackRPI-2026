@@ -124,6 +124,21 @@ export function hoverDetection(feature) {
   }
 }
 
+function reviewTag(review) {
+  if (!review || !review.decision) return "";
+  const word = String(review.decision).split(" ")[0].toUpperCase();
+  return ` · ${word}`;
+}
+
+export function setReviewTags(reviews) {
+  const map = reviews || {};
+  for (const entity of layers.dets) {
+    if (!entity.label || !entity.detection) continue;
+    const id = entity.detection.properties.id;
+    entity.label.text = `${id}${reviewTag(map[id])}`;
+  }
+}
+
 function addTracks(collection) {
   const show = state.layers.ais;
   for (const feature of collection.features) {

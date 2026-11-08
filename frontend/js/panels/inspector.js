@@ -130,8 +130,61 @@ function unmatchedPanel(ev) {
     `<div class="evidence-head"><h2>Status</h2></div>` +
     `<p>${esc(statusLine(ev))}</p>` +
     `</div>` +
-    `<p class="disclaimer">${esc(DISCLAIMER)}</p>`
+    `<p class="disclaimer">${esc(DISCLAIMER)}</p>` +
+    (ev.candidate_status === "dark_candidate" ? darkActions(ev.id) : "")
   );
+}
+
+function darkActions(detId) {
+  return (
+    `<div class="case-actions">` +
+    `<button type="button" data-reacquire="${esc(detId)}">Reacquire</button>` +
+    `<a href="/case.html?id=${esc(detId)}" target="_blank" rel="noopener">Open case file</a>` +
+    `</div>`
+  );
+}
+
+function fracPct(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "—";
+  return `${Math.round(n * 100)}%`;
+}
+
+export function showPlan(plan) {
+  const det = (plan && plan.detection) || {};
+  const best = plan && plan.best_next;
+  const clipped = plan && plan.clipped_to_coastline
+    ? "Reach clipped to sea."
+    : "Reach not clipped to coastline.";
+  const visible = [...(plan.passes || [])]
+    .sort((a, b) => Number(a.hours_after) - Number(b.hours_after))
+    .slice(0, 5);
+  const rows = visible.map((p) => {
+    const on = p.best ? " on" : "";
+    const tasked = p.coverage === "tasked"
+      ? `<span class="chip commercial">possible, requires tasking</span>`
+      : `<span class="chip">systematic</span>`;
+    return (
+      `<button type="button" class="plan-pass${on}" data-pass-norad="${p.norad}" data-pass-center="${esc(p.center)}">` +
+      `<span>${esc(p.name)}</span>` +
+      `<span class="micro">${esc(String(p.hours_after))} h · typical ${esc(fracPct(p.coverage_frac && p.coverage_frac.typical))}</span>` +
+      tasked +
+      `</button>`
+    );
+  }).join("");
+  setTitle(`REACQUIRE · ${det.id || ""}`);
+  setBody(
+    `<p class="hint">${esc(clipped)} Slow 6 kn / typical 12 kn / fast 20 kn.</p>` +
+    (best
+      ? `<p class="hint">Best next chance: ${esc(best.name)} at ${esc(best.center)} (${esc(String(best.hours_after))} h).</p>`
+      : `<p class="hint">No covering pass in the next 48 hours.</p>`) +
+    `<div class="plan-list">${rows}</div>` +
+    `<div class="case-actions">` +
+    `<button type="button" data-clear-plan>Clear plan</button>` +
+    `<a href="/case.html?id=${esc(det.id || "")}" target="_blank" rel="noopener">Open case file</a>` +
+    `</div>`,
+  );
+  showCard();
 }
 
 function matchedPanel(ev) {

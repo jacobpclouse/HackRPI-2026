@@ -73,6 +73,23 @@ def spec_of(rec: SatRecord) -> FamilySpec:
     )
 
 
+def _swath_spans(alt_km: float, spec: FamilySpec) -> list[tuple[float, float]]:
+    """Cross-track intervals occupied by the swath; same model as ``in_swath``."""
+    if spec.coverage == "possible":
+        near = ground_range_km(alt_km, 15.0)
+        far = ground_range_km(alt_km, spec.access_inc)
+    else:
+        near = ground_range_km(alt_km, spec.inc_near)
+        far = ground_range_km(alt_km, spec.inc_far)
+    if not np.isfinite(near) or not np.isfinite(far) or far <= near:
+        return []
+    if spec.look == "left":
+        return [(-far, -near)]
+    if spec.look == "either":
+        return [(near, far), (-far, -near)]
+    return [(near, far)]
+
+
 def in_swath(cross_km: float, alt_km: float, spec: FamilySpec) -> bool:
     """True when the point is inside the mission's coverage model at abeam."""
     if not np.isfinite(cross_km) or not np.isfinite(alt_km):
@@ -96,6 +113,19 @@ def in_swath(cross_km: float, alt_km: float, spec: FamilySpec) -> bool:
     return near <= cross_km <= far
 
 
+def swath_reaches(cross_km: float, alt_km: float, spec: FamilySpec, extra_km: float) -> bool:
+    """True if the swath could intersect a disk of radius ``extra_km`` around the point."""
+    if extra_km <= 0:
+        return in_swath(cross_km, alt_km, spec)
+    if not np.isfinite(cross_km) or not np.isfinite(alt_km):
+        return False
+    lo, hi = cross_km - extra_km, cross_km + extra_km
+    for a, b in _swath_spans(alt_km, spec):
+        if max(a, lo) <= min(b, hi):
+            return True
+    return False
+
+
 def display_ranges_km(alt_km: float, spec: FamilySpec) -> tuple[float, float]:
     """Near and far ground range of the strip drawn on the globe."""
     if spec.nominal_width_km:
@@ -108,7 +138,17 @@ def display_ranges_km(alt_km: float, spec: FamilySpec) -> tuple[float, float]:
     return ground_range_km(alt_km, spec.inc_near), ground_range_km(alt_km, spec.inc_far)
 
 
-def find_passes(
+def _merge_passes(found: list[Pass]) -> list[Pass]:
+    found.sort(key=lambda p: p.center)
+    merged: list[Pass] = []
+    for p in found:
+        if merged and (p.center - merged[-1].center) < timedelta(minutes=4):
+            continue
+        merged.append(p)
+    return merged
+
+
+def abeam_passes(
     rec: SatRecord,
     lat: float,
     lon: float,
@@ -116,7 +156,7 @@ def find_passes(
     t1: datetime,
     step_s: int = 30,
 ) -> list[Pass]:
-    spec = spec_of(rec)
+    """Closest-approach times to ``(lat, lon)``, without a swath membership test."""
     span = (t1 - t0).total_seconds()
     if span <= 0:
         return []
@@ -137,8 +177,6 @@ def find_passes(
         frac = 0.0 if denom == 0 else abs(float(along[i])) / denom
         cross_i = float(cross[i] + frac * (cross[i + 1] - cross[i]))
         alt_i = float(alts[i] + frac * (alts[i + 1] - alts[i]))
-        if not in_swath(cross_i, alt_i, spec):
-            continue
         center = times[i] + timedelta(seconds=step_s * frac)
         half = timedelta(seconds=25)
         found.append(
@@ -156,12 +194,22 @@ def find_passes(
             )
         )
     found.sort(key=lambda p: p.center)
-    merged: list[Pass] = []
-    for p in found:
-        if merged and (p.center - merged[-1].center) < timedelta(minutes=4):
-            continue
-        merged.append(p)
-    return merged
+    return found
+
+
+def find_passes(
+    rec: SatRecord,
+    lat: float,
+    lon: float,
+    t0: datetime,
+    t1: datetime,
+    step_s: int = 30,
+) -> list[Pass]:
+    spec = spec_of(rec)
+    found = [
+        p for p in abeam_passes(rec, lat, lon, t0, t1, step_s=step_s) if in_swath(p.cross_km, p.alt_km, spec)
+    ]
+    return _merge_passes(found)
 
 
 def predict_passes(
@@ -190,13 +238,36 @@ def next_pass_over_polygon(
     horizon_h: float,
     families: set[str] | None = None,
 ) -> list[Pass]:
-    """Next swath passes that cover any part of a GeoJSON polygon.
+    """Swath passes that cover any part of a GeoJSON polygon within ``horizon_h`` hours."""
+    from shapely.geometry import shape as shp_shape
 
-    Reserved for the "Catch it" feature: given a vessel's possible-position
-    area, return the soonest passes (systematic first, then possible) within
-    ``horizon_h`` hours of ``t0``, optionally limited to ``families``.
-    """
-    raise NotImplementedError("next_pass_over_polygon is reserved for the Catch it feature")
+    from darkwatch.catalog import get_catalog
+    from darkwatch.casefile.reach import from_geojson, polygon_radius_km
+    from darkwatch.orbit.orbit import ensure_utc
+
+    geom = from_geojson(polygon)
+    lon, lat = float(geom.centroid.x), float(geom.centroid.y)
+    radius = polygon_radius_km(geom, lat, lon)
+    t0 = ensure_utc(t0)
+    t1 = t0 + timedelta(hours=horizon_h)
+    cat = get_catalog()
+    out: list[Pass] = []
+    for rec in cat.satellites:
+        if families is not None and rec.family not in families:
+            continue
+        spec = spec_of(rec)
+        hits: list[Pass] = []
+        for p in abeam_passes(rec, lat, lon, t0, t1):
+            if not swath_reaches(p.cross_km, p.alt_km, spec, radius):
+                continue
+            feat = swath_polygon(rec, p.center)
+            if not feat.get("geometry"):
+                continue
+            if shp_shape(feat["geometry"]).intersects(geom):
+                hits.append(p)
+        out.extend(_merge_passes(hits))
+    out.sort(key=lambda p: (0 if p.coverage == "systematic" else 1, p.start))
+    return out
 
 
 def swath_polygon(rec: SatRecord, when: datetime, half_s: int = 100, step_s: int = 8) -> dict:

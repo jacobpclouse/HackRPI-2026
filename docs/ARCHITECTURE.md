@@ -54,13 +54,14 @@ Read order at runtime: Tiger (if `TIGER_DATABASE_URL` is set and has a scene), t
 | Package | Job |
 | --- | --- |
 | `api/` | FastAPI app factory and routers. Static `frontend/` is mounted last. |
-| `orbit/` | SGP4, swath geometry, pass windows, coverage gaps. `next_pass_over_polygon` is a reserved stub. |
+| `orbit/` | SGP4, swath geometry, pass windows, coverage gaps. `next_pass_over_polygon` finds swaths that intersect a reach polygon. |
 | `catalog/` | Family rules, GP records, CelesTrak fetch, mission registry. |
 | `detection/` | CA-CFAR, AIS matching, coverage reports. `Detector` protocol + `xview3_adapter` seam. `classifier.py` scores 64×64 chips (ONNX ResNet-18); it does not replace CFAR. |
 | `imagery/` | Upload/sample pipeline (notebook proposer → chips → classifier → optional VOC / AIS). Planetary Computer TileJSON for the Kattegat radar overlay. |
 | `ais/` | Sample loading, reporting silences, onset-after-pass baseline. |
 | `geo/` | Regions and Natura 2000 helpers. |
 | `storage/` | `Store` interface, DuckDB, Timescale, live snapshot picker. |
+| `casefile/` | Reach disks (6/12/20 kn), 48 h reacquisition plans, printable case files, and analyst sign-off for Kattegat dark candidates. |
 | `services/` | Briefs (Gemini or template), Fish Audio narration, GFW validation, evidence (`candidate_status`, `ais_context`). |
 | `config.py` | Only module that reads environment variables. |
 | `paths.py` | Repo root via `.darkwatch-root` + `data/`. |

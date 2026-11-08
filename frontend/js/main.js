@@ -1,8 +1,9 @@
 import { getJSON } from "./api.js";
-import { bindClock, coverageStart, cycleSpeed, onTick, returnToLive, togglePause } from "./clock.js";
+import { bindClock, coverageStart, cycleSpeed, onTick, returnToLive, setSimTime, togglePause } from "./clock.js";
+import { clearReach, drawReach, flyToReach } from "./globe/reach.js";
 import { dimForScene, loadAisOnly, loadGlobalShips, setAisOnlyVisible, setGlobalVisible, startShipPoll } from "./globe/ships.js";
 import { closeAnalyze, isAnalyzeOpen, openAnalyze, showAnalysisOnGlobe, wireAnalyze } from "./analyze.js";
-import { loadMpas, setLayerVisible, showScene } from "./globe/scene.js";
+import { loadMpas, setLayerVisible, setReviewTags, showScene } from "./globe/scene.js";
 import {
   applyFleetFilter,
   clearSatelliteSelection,
@@ -13,11 +14,13 @@ import {
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
-import { focusDetection, idleInspector, paintSelectedSatellite, showAisOnly, showGlobalShip, showModelCard, showSatellite } from "./panels/inspector.js";
+import { focusDetection, idleInspector, paintSelectedSatellite, showAisOnly, showDetection, showGlobalShip, showModelCard, showPlan, showSatellite } from "./panels/inspector.js";
 import { markKattegat, markLegendFamily, renderHudChips, renderLegend, renderStatusLegend, updateShipDockCounts, wireDock, wireLegend } from "./panels/layers.js";
-import { set } from "./state.js";
+import { set, state } from "./state.js";
 import { bindScrub, drawTimeline, paint as paintTimeline } from "./timeline.js";
 import { $ } from "./ui/dom.js";
+
+let activePlan = null;
 
 async function loadCoverage(lat, lon, title) {
   try {
@@ -46,6 +49,12 @@ async function openKattegat() {
   await loadCoverage(region.lat, region.lon, "Kattegat · 48 h");
   renderHudChips();
   renderStatusLegend(true);
+  try {
+    const files = await getJSON("/api/casefile");
+    setReviewTags(files.reviews || {});
+  } catch {
+    /* tags are optional */
+  }
 }
 
 function showEarth() {
@@ -57,6 +66,61 @@ function clearSelection() {
   clearSwath();
   idleInspector();
   markLegendFamily(null);
+}
+
+function goLive() {
+  clearReach();
+  activePlan = null;
+  set({ catchCone: null });
+  returnToLive();
+}
+
+function clearPlan() {
+  const detId = activePlan && activePlan.detection && activePlan.detection.id;
+  clearReach();
+  clearSwath();
+  clearSatelliteSelection();
+  markLegendFamily(null);
+  activePlan = null;
+  set({ catchCone: null });
+  returnToLive();
+  if (detId && state.selectedDetection && state.selectedDetection.properties.id === detId) {
+    showDetection(state.selectedDetection);
+  } else {
+    idleInspector();
+  }
+}
+
+function passFromPlan(norad, center) {
+  return ((activePlan && activePlan.passes) || []).find(
+    (item) => String(item.norad) === String(norad) && item.center === center,
+  );
+}
+
+async function applyPass(pass) {
+  if (!pass || !activePlan) return;
+  const det = activePlan.detection;
+  setSimTime(pass.center);
+  drawReach(det.lat, det.lon, pass.hours_after, activePlan.speeds_kn);
+  const sat = state.sats.find((item) => item.rec.norad === pass.norad);
+  if (sat) {
+    selectSatellite(sat.rec);
+    markLegendFamily(sat.rec.family);
+    await drawSwathFor(sat.rec);
+  }
+  flyToReach(det.lat, det.lon, pass.hours_after, activePlan.speeds_kn, sat && sat.point && sat.point.position);
+}
+
+async function startReacquire(detId) {
+  const plan = await getJSON(`/api/casefile/${encodeURIComponent(detId)}/plan`);
+  activePlan = plan;
+  set({ catchCone: plan });
+  showPlan(plan);
+  if (plan.best_next) await applyPass(plan.best_next);
+  else {
+    setSimTime(plan.t_acq);
+    drawReach(plan.detection.lat, plan.detection.lon, 6, plan.speeds_kn);
+  }
 }
 
 function selectFleet(family) {
@@ -72,8 +136,27 @@ function selectFleet(family) {
 function wire() {
   $("wordmark").addEventListener("click", showEarth);
   $("speed").addEventListener("click", cycleSpeed);
-  $("live").addEventListener("click", returnToLive);
+  $("live").addEventListener("click", goLive);
   $("card-close").addEventListener("click", clearSelection);
+  $("card").addEventListener("click", (event) => {
+    const reacquire = event.target.closest("[data-reacquire]");
+    if (reacquire) {
+      event.preventDefault();
+      startReacquire(reacquire.getAttribute("data-reacquire"));
+      return;
+    }
+    if (event.target.closest("[data-clear-plan]")) {
+      event.preventDefault();
+      clearPlan();
+      return;
+    }
+    const passBtn = event.target.closest("[data-pass-center]");
+    if (passBtn) {
+      event.preventDefault();
+      const pass = passFromPlan(passBtn.getAttribute("data-pass-norad"), passBtn.getAttribute("data-pass-center"));
+      if (pass) applyPass(pass);
+    }
+  });
   $("dock-model").addEventListener("click", () => {
     clearSatelliteSelection();
     clearSwath();
@@ -104,7 +187,7 @@ function wire() {
       event.preventDefault();
       togglePause();
     }
-    if (event.key === "l" || event.key === "L") returnToLive();
+    if (event.key === "l" || event.key === "L") goLive();
     if (event.key === "f" || event.key === "F") flyToSelection();
     if (event.key === "Escape") {
       if (isAnalyzeOpen()) {
