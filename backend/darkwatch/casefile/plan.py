@@ -7,7 +7,6 @@ from datetime import timedelta
 
 from shapely.geometry import shape as shp_shape
 
-from darkwatch.catalog import get_catalog
 from darkwatch.casefile.candidates import acquisition_time, require_dark_candidate
 from darkwatch.casefile.reach import (
     SPEED_KN,
@@ -17,6 +16,7 @@ from darkwatch.casefile.reach import (
     land_available,
     reach_radius_km,
 )
+from darkwatch.catalog import get_catalog
 from darkwatch.orbit.orbit import ensure_utc, parse_time
 from darkwatch.orbit.passes import abeam_passes, spec_of, swath_polygon, swath_reaches
 

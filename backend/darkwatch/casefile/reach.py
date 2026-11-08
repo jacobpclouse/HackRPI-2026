@@ -130,7 +130,8 @@ def _land_in_window(bounds: tuple[float, float, float, float]):
         return None
     try:
         import shapefile
-        from shapely.geometry import box, shape as shp_shape
+        from shapely.geometry import box
+        from shapely.geometry import shape as shp_shape
         from shapely.ops import unary_union
     except ImportError:
         return None

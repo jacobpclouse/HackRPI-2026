@@ -9,7 +9,7 @@ from darkwatch.casefile.narrative import casefile_narrative
 from darkwatch.casefile.plan import plan_for
 from darkwatch.casefile.recommend import LIMITS, recommendations, summary_line
 from darkwatch.casefile.reviews import latest
-from darkwatch.services.evidence import evidence_payload, enrich_match
+from darkwatch.services.evidence import enrich_match, evidence_payload
 
 
 def _now() -> str:

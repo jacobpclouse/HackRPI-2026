@@ -241,8 +241,8 @@ def next_pass_over_polygon(
     """Swath passes that cover any part of a GeoJSON polygon within ``horizon_h`` hours."""
     from shapely.geometry import shape as shp_shape
 
-    from darkwatch.catalog import get_catalog
     from darkwatch.casefile.reach import from_geojson, polygon_radius_km
+    from darkwatch.catalog import get_catalog
     from darkwatch.orbit.orbit import ensure_utc
 
     geom = from_geojson(polygon)
