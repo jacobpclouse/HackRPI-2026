@@ -10,7 +10,9 @@ A side-looking radar satellite only illuminates a strip offset from its ground t
 
 ## What DarkWatch does
 
-The globe is the product. Click **Kattegat** for a Sentinel-1D chip (2 Nov 2026). Green rings matched public AIS. Red rings are dark candidates (vessel-like, transient, no public AIS). Grey dashed rings are deprioritized (land, rocks, or not vessel-like). The classifier card and the detection inspector show how that call was made.
+The globe is the product. Click **Kattegat** for a Sentinel-1D chip (2 Nov 2026). Green rings matched public AIS. Red rings are dark candidates (vessel-like, transient, no public AIS). Grey dashed rings are deprioritized (land, rocks, or not vessel-like). Hollow grey rings are AIS-only (broadcasting at the pass, not seen by radar). The classifier card and the detection inspector show how that call was made.
+
+Global ships are self-reported AIS positions shown for context. Only ships inside the Sentinel-1 scene are checked against radar.
 
 ## What's novel
 
@@ -77,7 +79,7 @@ or `make dev`. Open http://127.0.0.1:8741
 
 `make test`  ·  `make lint`  ·  `make prepare` (re-download scene, AIS, MPAs, catalog)
 
-Copy `.env.example` to `.env` for optional Gemini, Fish Audio, Cesium ion, Tiger, GFW. All stay off when unset.
+Copy `.env.example` to `.env` for optional Gemini, Fish Audio, Cesium ion, Tiger, GFW, AISStream. All stay off when unset. Set `AISSTREAM_API_KEY` and `AIS_GLOBAL_REFRESH=1` to refresh the global AIS layer in the background.
 
 ## Team
 
@@ -85,7 +87,7 @@ HackRPI 2026.
 
 ## Built with
 
-Python, FastAPI, CesiumJS, satellite.js / SGP4, ONNX Runtime, CelesTrak, Microsoft Planetary Computer, Danish Maritime Authority AIS, EEA Natura 2000, LS-SSDD-v1.0, DuckDB. Optional: Gemini, Fish Audio, Databricks.
+Python, FastAPI, CesiumJS, satellite.js / SGP4, ONNX Runtime, CelesTrak, Microsoft Planetary Computer, Danish Maritime Authority AIS, AISStream, EEA Natura 2000, LS-SSDD-v1.0, DuckDB. Optional: Gemini, Fish Audio, Databricks.
 
 ---
 

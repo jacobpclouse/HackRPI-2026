@@ -1,0 +1,61 @@
+{
+  "position": {
+    "MessageType": "PositionReport",
+    "MetaData": {
+      "MMSI": 368207620,
+      "ShipName": "EXAMPLE VESSEL",
+      "Latitude": 25.7617,
+      "Longitude": -80.1918,
+      "time_utc": "2026-11-07T22:00:00Z"
+    },
+    "Message": {
+      "PositionReport": {
+        "MessageID": 1,
+        "UserID": 368207620,
+        "Sog": 12.4,
+        "Cog": 86.7,
+        "TrueHeading": 87,
+        "Valid": true
+      }
+    }
+  },
+  "static": {
+    "MessageType": "ShipStaticData",
+    "MetaData": {
+      "MMSI": 368207620,
+      "ShipName": "EXAMPLE VESSEL"
+    },
+    "Message": {
+      "ShipStaticData": {
+        "UserID": 368207620,
+        "Name": "EXAMPLE VESSEL",
+        "Type": 70,
+        "Destination": "ROTTERDAM",
+        "Dimension": { "A": 150, "B": 30, "C": 8, "D": 8 }
+      }
+    }
+  },
+  "missing_coords": {
+    "MessageType": "PositionReport",
+    "MetaData": { "MMSI": 111111111, "ShipName": "NO POS" },
+    "Message": { "PositionReport": { "UserID": 111111111, "Sog": 1 } }
+  },
+  "unavailable": {
+    "MessageType": "PositionReport",
+    "MetaData": {
+      "MMSI": 222222222,
+      "Latitude": 91,
+      "Longitude": 181
+    },
+    "Message": { "PositionReport": { "UserID": 222222222 } }
+  },
+  "origin": {
+    "MessageType": "PositionReport",
+    "MetaData": {
+      "MMSI": 333333333,
+      "Latitude": 0,
+      "Longitude": 0
+    },
+    "Message": { "PositionReport": { "UserID": 333333333 } }
+  }
+}

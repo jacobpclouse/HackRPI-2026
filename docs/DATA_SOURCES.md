@@ -51,7 +51,7 @@ Also:
 | Danish Maritime Authority historical AIS, [aisdata.ais.dk](http://aisdata.ais.dk) | Matching the 2 Nov 2026 scene | None | Public historical AIS | Used. The HTTPS site presented an expired TLS certificate when the demo was built, so the HTTP S3 listing was used. Day zips are ~550 MB; only the filtered sample is committed. |
 | NOAA / BOEM [MarineCadastre AIS](https://hub.marinecadastre.gov) | US waters, historical | None | Public | Not used |
 | [Global Fishing Watch APIs](https://globalfishingwatch.org/our-apis/) | Validation (`/api/validation/gfw`), vessel presence | Free token, non-commercial | GFW API terms | Optional. Off when `GFW_API_TOKEN` is unset. |
-| [AISStream](https://aisstream.io) | Live global AIS over WebSocket | Free key | AISStream terms | Not used. Candidate for a live layer. |
+| [AISStream](https://aisstream.io) | Global self-reported AIS context on the globe (`/api/ships/global`) | Free key (`AISSTREAM_API_KEY`) | AISStream terms; no SLA; terrestrial-station coverage, best-effort latency | Used when the key is set and `AIS_GLOBAL_REFRESH=1`. Direct browser connections are not allowed. The server listens on the world stream, writes `data/cache/ais_global.json` (gitignored), and falls back to `data/demo/ais_global_seed.json`. A refresh that returns fewer than 500 position reports, or that would cut the fleet in half, is discarded and the last good cache is kept. Global ships exclude the Kattegat scene bbox from `scene_meta.json` plus 0.05°. They are context only — not radar-verified. |
 
 ## Context layers
 

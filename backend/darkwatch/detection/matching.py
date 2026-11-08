@@ -25,6 +25,10 @@ class Interp:
     lat: float
     lon: float
     gap_s: float
+    sog: float | None = None
+    cog: float | None = None
+    t0: datetime | None = None
+    t1: datetime | None = None
 
 
 def interpolate_track(fixes: list[Fix], when: datetime, max_gap_s: float) -> Interp | None:
@@ -37,7 +41,16 @@ def interpolate_track(fixes: list[Fix], when: datetime, max_gap_s: float) -> Int
         nearest = min(fixes, key=lambda f: abs((f.t - when).total_seconds()))
         dt = abs((nearest.t - when).total_seconds())
         if dt <= min(60.0, max_gap_s):
-            return Interp(nearest.mmsi, nearest.name, nearest.lat, nearest.lon, dt)
+            return Interp(
+                nearest.mmsi,
+                nearest.name,
+                nearest.lat,
+                nearest.lon,
+                dt,
+                sog=nearest.sog,
+                t0=nearest.t,
+                t1=nearest.t,
+            )
         return None
     lo, hi = 0, len(fixes) - 1
     while hi - lo > 1:
@@ -51,12 +64,22 @@ def interpolate_track(fixes: list[Fix], when: datetime, max_gap_s: float) -> Int
     if span <= 0 or span > max_gap_s:
         return None
     frac = (when - a.t).total_seconds() / span
+    sog = None
+    if a.sog is not None and b.sog is not None:
+        sog = a.sog + frac * (b.sog - a.sog)
+    elif a.sog is not None:
+        sog = a.sog
+    elif b.sog is not None:
+        sog = b.sog
     return Interp(
         mmsi=a.mmsi,
         name=a.name or b.name,
         lat=a.lat + frac * (b.lat - a.lat),
         lon=a.lon + frac * (b.lon - a.lon),
         gap_s=span,
+        sog=sog,
+        t0=a.t,
+        t1=b.t,
     )
 
 

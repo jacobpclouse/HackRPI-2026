@@ -226,6 +226,57 @@ export async function showModelCard() {
   showCard();
 }
 
+function minutesAgo(iso) {
+  if (!iso) return "—";
+  const then = Date.parse(iso);
+  if (!Number.isFinite(then)) return iso;
+  const min = Math.max(0, Math.round((Date.now() - then) / 60000));
+  if (min < 1) return "just now";
+  if (min === 1) return "1 min ago";
+  if (min < 120) return `${min} min ago`;
+  const hours = Math.round(min / 60);
+  return `${hours} h ago`;
+}
+
+function shipFields(ship, extraNote) {
+  return (
+    `<div class="kv"><span>MMSI</span><b>${esc(ship.mmsi)}</b></div>` +
+    `<div class="kv"><span>Category</span><b>${esc(ship.category || "other")}</b></div>` +
+    `<div class="kv"><span>Speed</span><b>${ship.sog == null ? "—" : `${Number(ship.sog).toFixed(1)} kn`}</b></div>` +
+    `<div class="kv"><span>Course</span><b>${ship.cog == null ? "—" : `${Number(ship.cog).toFixed(0)}°`}</b></div>` +
+    `<div class="kv"><span>Last report</span><b>${esc(minutesAgo(ship.last_report))}</b></div>` +
+    `<p class="hint">${esc(extraNote || "Self-reported AIS position. Not radar-verified.")}</p>`
+  );
+}
+
+export function showGlobalShip(ship) {
+  setTitle(ship.name || ship.mmsi);
+  setBody(
+    `<p><span class="chip">SELF-REPORTED AIS</span></p>` +
+    shipFields(ship),
+  );
+  showCard();
+}
+
+export function showAisOnly(feature) {
+  const p = feature.properties || {};
+  setTitle(p.name || p.mmsi);
+  setBody(
+    `<p><span class="chip">AIS-ONLY IN SCENE</span></p>` +
+    shipFields(
+      {
+        mmsi: p.mmsi,
+        category: "other",
+        sog: p.sog,
+        cog: p.cog,
+        last_report: (p.interpolated_from && p.interpolated_from[0]) || "",
+      },
+      p.note,
+    ),
+  );
+  showCard();
+}
+
 export function idleInspector() {
   hideCard();
 }

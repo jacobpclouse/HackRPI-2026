@@ -95,3 +95,11 @@ def models_dir() -> Path:
 
 def evidence_dir() -> Path:
     return demo_dir() / "evidence"
+
+
+def ais_global_cache() -> Path:
+    return cache_dir() / "ais_global.json"
+
+
+def ais_global_seed() -> Path:
+    return demo_dir() / "ais_global_seed.json"

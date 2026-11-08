@@ -118,6 +118,31 @@ def ais_zip() -> str:
     return _get("AIS_ZIP")
 
 
+def aisstream_api_key() -> str:
+    """AISStream WebSocket key. Never log or return this value."""
+    return _get("AISSTREAM_API_KEY")
+
+
+def ais_global_refresh() -> bool:
+    return _get("AIS_GLOBAL_REFRESH", "0") == "1"
+
+
+def ais_global_interval_min() -> int:
+    return int(_get("AIS_GLOBAL_INTERVAL_MIN", "20"))
+
+
+def ais_global_listen_s() -> int:
+    return int(_get("AIS_GLOBAL_LISTEN_S", "180"))
+
+
+def ais_global_max_ships() -> int:
+    return int(_get("AIS_GLOBAL_MAX_SHIPS", "5000"))
+
+
+def ais_global_max_age_h() -> float:
+    return float(_get("AIS_GLOBAL_MAX_AGE_H", "12"))
+
+
 def integrations() -> dict[str, bool]:
     """Which optional services are configured. Booleans only, never values."""
     return {
@@ -129,6 +154,7 @@ def integrations() -> dict[str, bool]:
         "xview3": bool(xview3_weights() and xview3_repo()),
         "sql_warehouse": bool(databricks_warehouse_id() and databricks_host()),
         "wdpa": bool(wdpa_api_token()),
+        "aisstream": bool(aisstream_api_key()),
     }
 
 

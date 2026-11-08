@@ -31,6 +31,11 @@ databricks-sql-connector==4.9.0
 # job YAML). 1.23.2 is a CPython 3.12 wheel that installs next to numpy 2.5.4;
 # pip check stays clean. Newer 1.3x builds were not required for a single ResNet-18.
 onnxruntime==1.23.2
+# websockets is an app dependency only (AISStream client). 15.0.1 is a CPython 3.12
+# asyncio wheel; pip check stays clean next to uvicorn 0.54 / starlette.
+websockets==15.0.1
+# CA bundle for AISStream WSS. python.org macOS builds fail default TLS verify.
+certifi==2026.10.23
 
 # --- refresh job and `make prepare` (requirements-job.txt) ---
 pillow==13.0.0

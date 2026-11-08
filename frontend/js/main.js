@@ -1,5 +1,6 @@
 import { getJSON } from "./api.js";
 import { bindClock, coverageStart, cycleSpeed, onTick, returnToLive, togglePause } from "./clock.js";
+import { dimForScene, loadAisOnly, loadGlobalShips, setAisOnlyVisible, setGlobalVisible, startShipPoll } from "./globe/ships.js";
 import { loadMpas, setLayerVisible, showScene } from "./globe/scene.js";
 import {
   applyFleetFilter,
@@ -10,8 +11,8 @@ import {
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
-import { focusDetection, idleInspector, showModelCard, showSatellite } from "./panels/inspector.js";
-import { markKattegat, renderHudChips, renderLegend, renderStatusLegend, wireDock } from "./panels/layers.js";
+import { focusDetection, idleInspector, showAisOnly, showGlobalShip, showModelCard, showSatellite } from "./panels/inspector.js";
+import { markKattegat, renderHudChips, renderLegend, renderStatusLegend, updateShipDockCounts, wireDock } from "./panels/layers.js";
 import { set } from "./state.js";
 import { bindScrub, drawTimeline, paint as paintTimeline } from "./timeline.js";
 import { $ } from "./ui/dom.js";
@@ -37,6 +38,9 @@ async function openKattegat() {
   set({ region, selectedPoint: { lat: region.lat, lon: region.lon } });
   markKattegat(true);
   await showScene();
+  await loadAisOnly();
+  dimForScene();
+  updateShipDockCounts();
   await loadCoverage(region.lat, region.lon, "Kattegat · 48 h");
   renderHudChips();
   renderStatusLegend(true);
@@ -65,6 +69,8 @@ function wire() {
   wireDock({
     onSats: applyFleetFilter,
     onAis: (on) => setLayerVisible("ais", on),
+    onGlobalAis: setGlobalVisible,
+    onAisOnly: setAisOnlyVisible,
     onDet: (on) => setLayerVisible("det", on),
     onKattegat: openKattegat,
   });
@@ -104,6 +110,25 @@ async function main() {
       focusDetection(id.detection);
       return;
     }
+    if (id && id.globalShip) {
+      clearSatelliteSelection();
+      clearSwath();
+      showGlobalShip(id.globalShip);
+      return;
+    }
+    if (id && id.aisOnly) {
+      clearSatelliteSelection();
+      clearSwath();
+      showAisOnly(id.aisOnly);
+      return;
+    }
+    const entity = id;
+    if (entity && entity.aisOnly) {
+      clearSatelliteSelection();
+      clearSwath();
+      showAisOnly(entity.aisOnly);
+      return;
+    }
     clearSelection();
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   onTick(() => {
@@ -117,8 +142,13 @@ async function main() {
       getJSON("/api/model"),
     ]);
     set({ missions: missions.missions || {}, health, model });
+    await loadGlobalShips();
+    await loadAisOnly();
+    startShipPoll();
+    updateShipDockCounts();
     renderHudChips();
     renderLegend();
+    renderStatusLegend(true);
     await loadMpas();
   } catch (err) {
     console.error(err);

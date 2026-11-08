@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse, Response
 
 from darkwatch import paths
+from darkwatch.ais.scene_layer import ais_only_geojson
 from darkwatch.api.common import matches, store
 from darkwatch.orbit import parse_time
 from darkwatch.services.evidence import enrich_match, review_block
@@ -83,6 +84,14 @@ def detections():
             for row in rows
         ],
     }
+
+
+@router.get("/api/scene/ais_only")
+def scene_ais_only():
+    try:
+        return ais_only_geojson()
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc)) from exc
 
 
 @router.get("/api/ais")
