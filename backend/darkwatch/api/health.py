@@ -11,6 +11,7 @@ from fastapi.responses import Response
 
 from darkwatch import __version__, config, paths
 from darkwatch.api.common import scene_summary, store
+from darkwatch.api.ships import health_block as ais_health
 from darkwatch.catalog import status as catalog_status
 from darkwatch.detection import classifier
 from darkwatch.storage import get_snapshot
@@ -62,6 +63,7 @@ def health():
             "available": classifier.available(),
             "threshold": classifier.threshold() if classifier.threshold_path().is_file() else None,
         },
+        "ais_global": ais_health(),
     }
 
 

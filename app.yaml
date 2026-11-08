@@ -12,6 +12,10 @@ env:
     value_from: fish-audio-key
   - name: TIGER_DATABASE_URL
     value_from: tiger-url
+  - name: AISSTREAM_API_KEY
+    value_from: aisstream-key
+  - name: AIS_GLOBAL_REFRESH
+    value: "1"
   - name: DARKWATCH_CATALOG
     value: workspace
   - name: DARKWATCH_SCHEMA

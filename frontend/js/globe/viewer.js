@@ -60,6 +60,8 @@ export function createViewer() {
     const picked = viewer.scene.pick(move.endPosition);
     const rec = picked && picked.id && picked.id.satellite;
     const det = picked && picked.id && picked.id.detection;
+    const globalShip = picked && picked.id && picked.id.globalShip;
+    const aisOnly = picked && picked.id && picked.id.aisOnly;
     const tip = $("hud-tip");
     if (rec) {
       const sat = state.sats.find((item) => item.rec.norad === rec.norad);
@@ -73,6 +75,15 @@ export function createViewer() {
         || (det.properties.matched ? "matched" : "unreviewed");
       tip.textContent = `${det.properties.id}  ${status.replace("_", " ")}`;
       hoverDetection(det);
+    } else if (globalShip) {
+      tip.hidden = false;
+      tip.textContent = `${globalShip.name || globalShip.mmsi}  AIS`;
+      hoverDetection(null);
+    } else if (aisOnly) {
+      const p = aisOnly.properties || aisOnly;
+      tip.hidden = false;
+      tip.textContent = `${p.name || p.mmsi}  AIS-only`;
+      hoverDetection(null);
     } else {
       tip.hidden = true;
       hoverDetection(null);

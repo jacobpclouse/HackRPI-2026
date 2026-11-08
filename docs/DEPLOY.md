@@ -20,7 +20,10 @@ Create only the keys the bundle references. A missing key fails the app deploy.
 databricks secrets create-scope darkwatch
 databricks secrets put-secret darkwatch fish_audio_api_key --string-value "$FISH_AUDIO_API_KEY"
 databricks secrets put-secret darkwatch tiger_url --string-value "$TIGER_DATABASE_URL"
+databricks secrets put-secret darkwatch aisstream_api_key --string-value "$AISSTREAM_API_KEY"
 ```
+
+`aisstream_api_key` is referenced by the app resource. Create it before deploy or the app will fail to start on Databricks. Locally the same value is `AISSTREAM_API_KEY` in `.env`; background refresh also needs `AIS_GLOBAL_REFRESH=1`.
 
 `tiger_url` is a Postgres URL (`postgresql://...` or `postgres://...`). The refresh job reads it with `dbutils.secrets.get` and writes hypertables. The app reads it as `TIGER_DATABASE_URL`. If the URL is set but the database is down, the app falls through to the SQL warehouse and then to the bundled demo.
 

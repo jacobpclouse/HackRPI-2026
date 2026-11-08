@@ -20,6 +20,7 @@ Implemented in `frontend/css/tokens.css`.
 | `--matched` | `#3dd68c` | AIS-matched detections |
 | `--unmatched` | `#ff4d4f` | Potential dark vessels |
 | `--protected` | `#9b8afb` | MPA outline only |
+| `--ais-context` | `#9fb3c8` | Global self-reported AIS. Neutral, solid. Never green or red. |
 | `--font-ui` | Inter | Labels |
 | `--font-data` | JetBrains Mono | Numbers, UTC |
 | `--radius` | `2px` | Almost square |
@@ -29,9 +30,9 @@ Numbers use `font-variant-numeric: tabular-nums`. Micro labels are 10px, upperca
 
 ## Layout
 
-Globe is edge-to-edge. Floating chrome only: wordmark, UTC, `LIVE`/`SIM`, speed. A left dock holds Kattegat, Satellites, AIS, Detections. Click a satellite or detection for a 280px card. Timeline is a 72px strip that appears after Kattegat: 48 h, systematic ticks, hatched gaps, one gap number. Drag to scrub.
+Globe is edge-to-edge. Floating chrome only: wordmark, UTC, `LIVE`/`SIM`, speed. A left dock holds Kattegat, Satellites, AIS, Global AIS, AIS-only in scene, Detections, Classifier. Click a satellite, detection, or ship for a 280px card. Timeline is a 72px strip that appears after Kattegat: 48 h, systematic ticks, hatched gaps, one gap number. Drag to scrub.
 
-HUD, bottom-left: cursor lat/lon, camera altitude, provenance chips (`SNAPSHOT …`, `SCENE PACKAGED`). Cesium credits stay visible, restyled `--text-3`.
+HUD, bottom-left: cursor lat/lon, camera altitude, provenance chips (`SNAPSHOT …`, `SCENE PACKAGED`, `LIVE` / `CACHED` / `SEED` / `STALE` for global AIS). Cesium credits stay visible, restyled `--text-3`.
 
 ## Globe
 

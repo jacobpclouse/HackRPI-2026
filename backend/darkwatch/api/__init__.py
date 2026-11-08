@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.gzip import GZipMiddleware
@@ -10,7 +12,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from darkwatch import __version__, paths
-from darkwatch.api import coverage, evidence, health, media, orbits, scene, validation
+from darkwatch.ais import refresh as ais_refresh
+from darkwatch.api import coverage, evidence, health, media, orbits, scene, ships, validation
 
 
 async def _http_error(request: Request, exc: StarletteHTTPException):
@@ -32,12 +35,21 @@ async def _validation_error(request: Request, exc: RequestValidationError):
     )
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ais_refresh.start()
+    try:
+        yield
+    finally:
+        await ais_refresh.stop()
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title="DarkWatch", version=__version__)
+    app = FastAPI(title="DarkWatch", version=__version__, lifespan=lifespan)
     app.add_middleware(GZipMiddleware, minimum_size=800)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
-    for module in (health, orbits, coverage, scene, media, validation, evidence):
+    for module in (health, orbits, coverage, scene, media, validation, evidence, ships):
         app.include_router(module.router)
     evidence_dir = paths.evidence_dir()
     if evidence_dir.is_dir():

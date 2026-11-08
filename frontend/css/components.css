@@ -31,6 +31,7 @@
 .chip.open { color: var(--matched); }
 .chip.sample { color: var(--coverage); }
 .chip.restricted, .chip.commercial { color: var(--gap); }
+.chip.stale { color: var(--gap); border-color: var(--gap); }
 
 #dock button {
   background: transparent;
@@ -192,6 +193,11 @@
 .legend-swatch.unrev {
   background: transparent;
   border-color: var(--unmatched);
+}
+.legend-swatch.ais-context { background: var(--ais-context); }
+.legend-swatch.ais-only {
+  background: transparent;
+  border-color: var(--ais-context);
 }
 
 .toast {

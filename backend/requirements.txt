@@ -14,3 +14,5 @@ psycopg[binary]
 databricks-sdk
 databricks-sql-connector
 onnxruntime
+websockets
+certifi
