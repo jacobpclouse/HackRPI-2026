@@ -44,6 +44,22 @@ def _operator(family: str) -> str:
     return spec.get("operator") or family
 
 
+def _access_clause(family: str) -> str:
+    spec = load_missions().get(family) or {}
+    access = spec.get("access") or "unknown"
+    note = (spec.get("note") or "").strip()
+    labels = {
+        "open": "Open data.",
+        "open-sample": "Open sample data.",
+        "restricted": "Restricted data.",
+        "commercial": "Commercial data.",
+    }
+    head = labels.get(access, f"Access: {access}.")
+    if note and note.rstrip(".") not in head:
+        return f"{head} {note}".strip()
+    return head
+
+
 def recommendations(row: dict, plan: dict) -> list[dict]:
     steps: list[dict] = []
     best = plan.get("best_next")
@@ -56,7 +72,7 @@ def recommendations(row: dict, plan: dict) -> list[dict]:
                 "kind": "systematic",
                 "text": (
                     f"Review the {family} pass at {when} ({_pct(frac)} of the typical-speed reach area). "
-                    "Free data via Copernicus Browser or ASF Vertex."
+                    f"{_access_clause(family)}"
                 ),
                 "links": _mission_links(family),
             }

@@ -97,6 +97,10 @@ def evidence_dir() -> Path:
     return demo_dir() / "evidence"
 
 
+def reference_dir() -> Path:
+    return data_dir() / "reference"
+
+
 def ais_global_cache() -> Path:
     return cache_dir() / "ais_global.json"
 

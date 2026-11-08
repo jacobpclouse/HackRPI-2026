@@ -12,7 +12,7 @@ A side-looking radar satellite only illuminates a strip offset from its ground t
 
 The globe is the product. Click **Kattegat** for a Sentinel-1D chip (2 Nov 2026). Green rings matched public AIS. Red rings are dark candidates (vessel-like, transient, no public AIS). Grey dashed rings are deprioritized (land, rocks, or not vessel-like). Hollow grey rings are AIS-only (broadcasting at the pass, not seen by radar). The classifier card and the detection inspector show how that call was made.
 
-**Predict and act.** Dark candidates get a **Reacquire** control (reach rings, next SAR passes, clock scrub) and an **Open case file** page with evidence, verification steps, limits, and analyst sign-off. Reacquisition plans and case files are generated for Kattegat dark candidates.
+**Predict and act.** Dark candidates get a **Reacquire** control (reach rings, next SAR passes, clock scrub), a two-page **case file** (search box, next five passes with correct data-access levels, GPX/KML/GeoJSON exports, analyst sign-off), and a one-page **incident brief**. Gemini may write the prose; every number is produced by code and a numbers guard rejects invented figures. Reacquisition plans and reports are generated for Kattegat dark candidates.
 
 Global ships are self-reported AIS positions shown for context. Only ships inside the Sentinel-1 scene are checked against radar.
 
@@ -79,7 +79,7 @@ python run.py
 
 or `make dev`. Open http://127.0.0.1:8741
 
-`make test`  ·  `make lint`  ·  `make prepare` (re-download scene, AIS, MPAs, catalog)
+`make test`  ·  `make lint`  ·  `make prepare` (re-download scene, AIS, MPAs, catalog)  ·  `make reference` (Natural Earth ports/land/countries for the report)
 
 Copy `.env.example` to `.env` for optional Gemini, Fish Audio, Cesium ion, Tiger, GFW, AISStream. All stay off when unset. Set `AISSTREAM_API_KEY` and `AIS_GLOBAL_REFRESH=1` to refresh the global AIS layer in the background.
 

@@ -1,6 +1,8 @@
-"""Protected areas and preset ocean regions."""
+"""Protected areas, packaged Natural Earth layers, and preset ocean regions."""
 
 from darkwatch.geo.mpa import annotate_mpa, fetch_natura2000, fetch_wdpa, simplify_collection
+from darkwatch.geo.reference import available as reference_available
+from darkwatch.geo.reference import jurisdiction, nearest_ports
 from darkwatch.geo.regions import REGIONS, by_id
 
 __all__ = [
@@ -9,5 +11,8 @@ __all__ = [
     "by_id",
     "fetch_natura2000",
     "fetch_wdpa",
+    "jurisdiction",
+    "nearest_ports",
+    "reference_available",
     "simplify_collection",
 ]
