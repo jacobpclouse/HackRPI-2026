@@ -1,8 +1,8 @@
 import random
 from datetime import datetime, timedelta, timezone
 
-from darkwatch.ais import onset_after_pass
-from darkwatch.orbit import Pass
+from nimbus.ais import onset_after_pass
+from nimbus.orbit import Pass
 
 DAY0 = datetime(2026, 11, 2, tzinfo=timezone.utc)
 DAY1 = DAY0 + timedelta(hours=24)

@@ -5,8 +5,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from darkwatch.ais import global_cache
-from darkwatch.ais.stream import Ship
+from nimbus.ais import global_cache
+from nimbus.ais.stream import Ship
 
 NOW = datetime(2026, 11, 7, 23, 0, tzinfo=timezone.utc)
 

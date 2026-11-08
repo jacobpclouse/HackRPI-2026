@@ -1,6 +1,6 @@
 import math
 
-from darkwatch.orbit import along_cross_km, bearing_deg, destination, ground_range_km, haversine_km
+from nimbus.orbit import along_cross_km, bearing_deg, destination, ground_range_km, haversine_km
 
 
 def test_east_of_northbound_track_is_positive_cross():

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from darkwatch.paths import MARKER, repo_root
-from darkwatch.services.narration import DEFAULT_MODEL, DEFAULT_VOICE_ID, audio_filename, synthesize
-from darkwatch.storage.live import get_snapshot, load_bundle, report_from_stored
+from nimbus.paths import MARKER, repo_root
+from nimbus.services.narration import DEFAULT_MODEL, DEFAULT_VOICE_ID, audio_filename, synthesize
+from nimbus.storage.live import get_snapshot, load_bundle, report_from_stored
 
 
 def _fake_repo(base: Path) -> Path:
@@ -21,7 +21,7 @@ def _fake_repo(base: Path) -> Path:
 
 @pytest.fixture(autouse=True)
 def _no_root_env(monkeypatch):
-    monkeypatch.delenv("DARKWATCH_ROOT", raising=False)
+    monkeypatch.delenv("NIMBUS_ROOT", raising=False)
 
 
 def test_repo_root_from_job_script_path(tmp_path):
@@ -44,10 +44,10 @@ def test_repo_root_walks_up_from_cwd(tmp_path):
     assert repo_root(cwd=deep) == root.resolve()
 
 
-def test_darkwatch_root_env_wins(tmp_path, monkeypatch):
+def test_nimbus_root_env_wins(tmp_path, monkeypatch):
     first = _fake_repo(tmp_path / "a")
     second = _fake_repo(tmp_path / "b")
-    monkeypatch.setenv("DARKWATCH_ROOT", str(second))
+    monkeypatch.setenv("NIMBUS_ROOT", str(second))
     assert repo_root(cwd=first, extra=str(first)) == second.resolve()
 
 
@@ -101,7 +101,7 @@ def test_narration_cache_and_default_voice(tmp_path, monkeypatch):
     monkeypatch.delenv("FISH_AUDIO_MODEL", raising=False)
     text = "cache me"
     name = audio_filename("opening", text, DEFAULT_MODEL, DEFAULT_VOICE_ID)
-    from darkwatch.services import narration
+    from nimbus.services import narration
 
     monkeypatch.setattr(narration, "AUDIO_DIR", tmp_path)
     (tmp_path / name).write_bytes(b"ID3" + b"x" * 200)

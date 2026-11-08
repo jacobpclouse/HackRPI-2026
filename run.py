@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Set up the virtual environment and start DarkWatch.
+"""Set up the virtual environment and start Nimbus.
 
     python run.py               # install if needed, then serve on :8741
     python run.py --dev         # also install job + dev dependencies (tests, lint)
@@ -24,7 +24,7 @@ BACKEND = ROOT / "backend"
 APP = BACKEND / "app.py"
 DEFAULT_VENV = ".venv"
 DEFAULT_PORT = 8741
-STAMP = ".darkwatch-requirements.sha256"
+STAMP = ".nimbus-requirements.sha256"
 ANIMATION_S = 1.5
 
 FRAMES = [
@@ -168,14 +168,14 @@ def main():
     args = parser.parse_args()
 
     if not args.no_anim and sys.stdout.isatty():
-        logo_animation("--- === --- START DARKWATCH --- === ---")
+        logo_animation("--- === --- START NIMBUS --- === ---")
 
     venv_dir = (ROOT / args.venv).resolve()
     print(f"> {platform.system()} · Python {platform.python_version()}")
     python = install_requirements(venv_dir, dev=args.dev, verbose=args.verbose)
     if args.install_only:
         return
-    print(f"> Serving DarkWatch on http://127.0.0.1:{args.port}")
+    print(f"> Serving Nimbus on http://127.0.0.1:{args.port}")
     env = dict(os.environ, PORT=str(args.port))
     env.pop("DATABRICKS_APP_PORT", None)
     try:

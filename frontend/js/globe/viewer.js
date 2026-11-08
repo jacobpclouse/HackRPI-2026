@@ -3,7 +3,7 @@ import { state } from "../state.js";
 import { $ } from "../ui/dom.js";
 import { coord } from "../ui/format.js";
 
-const cfg = window.DARKWATCH_CONFIG || {};
+const cfg = window.NIMBUS_CONFIG || {};
 
 function esriImagery() {
   return new Cesium.UrlTemplateImageryProvider({

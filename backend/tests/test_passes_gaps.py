@@ -2,8 +2,8 @@ import json
 from datetime import timedelta
 from pathlib import Path
 
-from darkwatch.catalog import SatRecord, classify
-from darkwatch.orbit import (
+from nimbus.catalog import SatRecord, classify
+from nimbus.orbit import (
     coverage_gaps,
     destination,
     epoch_of,
@@ -49,11 +49,11 @@ def test_point_placed_in_the_swath_is_a_pass():
     epoch = epoch_of(sat)
     when = epoch + timedelta(minutes=20)
     pos = propagate_many(sat, [when, when + timedelta(seconds=20)])
-    from darkwatch.orbit import bearing_deg
+    from nimbus.orbit import bearing_deg
 
     heading = bearing_deg(pos["lat"][0], pos["lon"][0], pos["lat"][1], pos["lon"][1])
     # Mid-swath, right of track.
-    from darkwatch.orbit import ground_range_km
+    from nimbus.orbit import ground_range_km
 
     mid = 0.5 * (
         ground_range_km(float(pos["alt_km"][0]), rec.inc_near)
@@ -72,7 +72,7 @@ def test_left_of_track_is_not_a_sentinel_pass():
     epoch = epoch_of(sat)
     when = epoch + timedelta(minutes=20)
     pos = propagate_many(sat, [when, when + timedelta(seconds=20)])
-    from darkwatch.orbit import bearing_deg, ground_range_km
+    from nimbus.orbit import bearing_deg, ground_range_km
 
     heading = bearing_deg(pos["lat"][0], pos["lon"][0], pos["lat"][1], pos["lon"][1])
     mid = 0.5 * (
@@ -106,7 +106,7 @@ def test_gaps_are_the_holes_between_windows():
     sat = satrec_from_omm(rec.omm)
     t0 = epoch_of(sat)
     # Two synthetic passes inside a 10 hour window.
-    from darkwatch.orbit import Pass
+    from nimbus.orbit import Pass
 
     p1 = Pass(1, "A", "Sentinel-1", "systematic", t0 + timedelta(hours=1), t0 + timedelta(hours=1, minutes=1), t0 + timedelta(hours=1), 10, 700, "#fff")
     p2 = Pass(1, "A", "Sentinel-1", "systematic", t0 + timedelta(hours=4), t0 + timedelta(hours=4, minutes=1), t0 + timedelta(hours=4), 10, 700, "#fff")

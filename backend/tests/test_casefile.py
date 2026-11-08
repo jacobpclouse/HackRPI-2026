@@ -3,16 +3,16 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from darkwatch.api import create_app
-from darkwatch.casefile import reviews as reviews_mod
-from darkwatch.casefile.candidates import match_row
-from darkwatch.casefile.plan import plan_for
-from darkwatch.casefile.recommend import LIMITS, recommendations, summary_line
+from nimbus.api import create_app
+from nimbus.casefile import reviews as reviews_mod
+from nimbus.casefile.candidates import match_row
+from nimbus.casefile.plan import plan_for
+from nimbus.casefile.recommend import LIMITS, recommendations, summary_line
 
 
 @pytest.fixture(autouse=True)
 def _no_gemini(monkeypatch):
-    monkeypatch.setattr("darkwatch.config.gemini_api_key", lambda: "")
+    monkeypatch.setattr("nimbus.config.gemini_api_key", lambda: "")
 
 
 def test_recommendations_include_protected_area_for_d016():

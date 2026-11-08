@@ -1,5 +1,5 @@
 services:
-  darkwatch:
+  nimbus:
     build: .
     ports:
       - "8741:8741"

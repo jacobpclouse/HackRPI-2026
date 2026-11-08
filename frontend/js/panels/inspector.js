@@ -182,7 +182,6 @@ export function showPlan(plan) {
     `<div class="case-actions">` +
     `<button type="button" data-clear-plan>Clear plan</button>` +
     `<a href="/case.html?id=${esc(det.id || "")}" target="_blank" rel="noopener">Open case file</a>` +
-    `<a href="/brief.html" target="_blank" rel="noopener">Incident brief</a>` +
     `</div>`,
   );
   showCard();

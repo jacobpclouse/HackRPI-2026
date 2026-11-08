@@ -6,17 +6,17 @@ import re
 from shapely.geometry import Point
 from shapely.geometry import box as shp_box
 
-from darkwatch.casefile.candidates import match_row
-from darkwatch.casefile.facts import (
+from nimbus.casefile.candidates import match_row
+from nimbus.casefile.facts import (
     build_facts,
     compute_priority,
     format_ddm,
     parse_ddm,
 )
-from darkwatch.casefile.plan import plan_for
-from darkwatch.casefile.reach import geodesic_disk, reach_radius_km
-from darkwatch.casefile.recommend import recommendations
-from darkwatch.geo.reference import clip_to_sea
+from nimbus.casefile.plan import plan_for
+from nimbus.casefile.reach import geodesic_disk, reach_radius_km
+from nimbus.casefile.recommend import recommendations
+from nimbus.geo.reference import clip_to_sea
 
 PHONE_OR_EMAIL = re.compile(
     r"(?:[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})|(?:\+\d[\d\s().-]{7,}\d)",

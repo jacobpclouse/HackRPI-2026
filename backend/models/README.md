@@ -10,7 +10,7 @@ Offline scorer for 64×64 Sentinel-1 VV chips. It does not replace CA-CFAR. CFAR
 - Output: one logit per chip; apply sigmoid for `vessel_score`
 - Threshold file: `ship_clf_threshold.json` → `0.784…`, chosen on the validation scene as the **highest threshold that keeps ≥95% of ships**
 
-`darkwatch.detection.classifier` lazy-loads the session. The app starts if the file or `onnxruntime` is missing.
+`nimbus.detection.classifier` lazy-loads the session. The app starts if the file or `onnxruntime` is missing.
 
 ## Training data
 

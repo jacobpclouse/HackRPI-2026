@@ -72,7 +72,7 @@ function render(data) {
   const port = (facts.nearest_ports || [])[0];
   const signed = Boolean(review && review.decision);
   document.body.classList.toggle("signed", signed);
-  document.title = `DarkWatch case ${case_.id || detId}`;
+  document.title = `Nimbus case ${case_.id || detId}`;
 
   const readings = Object.fromEntries((nar.evidence_readings || []).map((r) => [r.item, r.reading]));
   const actionById = Object.fromEntries((facts.candidate_actions || []).map((a) => [a.id, a]));
@@ -129,7 +129,7 @@ function render(data) {
     `<div class="watermark">DRAFT</div>` +
     `<div class="page-1">` +
     `<header class="band"><div>` +
-    `<h1>DarkWatch · Case ${esc(case_.id || detId)}</h1>` +
+    `<h1>Nimbus · Case ${esc(case_.id || detId)}</h1>` +
     `<p class="marking">${esc(case_.marking || "")}</p>` +
     `<p class="scene-id">${esc(case_.scene_id || "")}</p>` +
     `</div><div>` +

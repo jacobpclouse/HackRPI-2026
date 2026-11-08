@@ -20,7 +20,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))
 sys.path.insert(0, str(BACKEND / "scripts"))
 
-from darkwatch import config, paths  # noqa: E402
+from nimbus import config, paths  # noqa: E402
 
 config.configure_gdal()
 

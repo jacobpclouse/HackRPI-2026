@@ -22,6 +22,18 @@ html, body {
   text-transform: uppercase;
   font-size: var(--fs-small);
 }
+.case-bar a.wordmark {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  text-decoration: none;
+}
+.case-bar a.wordmark img {
+  height: 28px;
+  width: auto;
+  display: block;
+  mix-blend-mode: screen;
+}
 .case-bar-actions { display: flex; gap: var(--s3); align-items: center; }
 
 .case-page {

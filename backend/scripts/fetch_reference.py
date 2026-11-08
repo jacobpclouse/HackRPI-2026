@@ -28,9 +28,9 @@ BACKEND = Path(__file__).resolve().parents[1]
 if str(BACKEND) not in sys.path:
     sys.path.insert(0, str(BACKEND))
 
-from darkwatch import paths  # noqa: E402
+from nimbus import paths  # noqa: E402
 
-log = logging.getLogger("darkwatch.reference")
+log = logging.getLogger("nimbus.reference")
 
 # west, south, east, north — Kattegat window from CURSOR_PROMPT_REPORT.md
 BBOX = (10.0, 55.3, 13.2, 58.2)

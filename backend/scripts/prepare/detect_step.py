@@ -7,13 +7,13 @@ from pathlib import Path
 
 import numpy as np
 
-from darkwatch.detection import CFARDetector, Fix, confidence_score, match_detections
-from darkwatch.geo import annotate_mpa
+from nimbus.detection import CFARDetector, Fix, confidence_score, match_detections
+from nimbus.geo import annotate_mpa
 from prepare import Target, log
 
 
 def ensure_land_shp(ne_url: str) -> Path:
-    shp = Path("/tmp/darkwatch-ne/ne_10m_land.shp")
+    shp = Path("/tmp/nimbus-ne/ne_10m_land.shp")
     if shp.exists():
         return shp
     import io
@@ -24,7 +24,7 @@ def ensure_land_shp(ne_url: str) -> Path:
     log("downloading Natural Earth 10m land")
     response = httpx.get(ne_url, timeout=120, follow_redirects=True)
     response.raise_for_status()
-    dest = Path("/tmp/darkwatch-ne")
+    dest = Path("/tmp/nimbus-ne")
     dest.mkdir(parents=True, exist_ok=True)
     with zf.ZipFile(io.BytesIO(response.content)) as archive:
         archive.extractall(dest)
@@ -143,7 +143,7 @@ def match_all(target: Target, dets: list[dict], tracks: dict[str, list[Fix]], mp
         "ais_source": target.ais_url,
         "note": "Unmatched means not matched to Danish Maritime Authority public AIS. It is not evidence of wrongdoing.",
     }
-    from darkwatch.detection.matching import interpolate_track
+    from nimbus.detection.matching import interpolate_track
 
     n_interp = 0
     for fixes in scene_tracks.values():

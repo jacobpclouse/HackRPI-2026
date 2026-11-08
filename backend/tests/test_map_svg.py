@@ -2,9 +2,9 @@
 
 import xml.etree.ElementTree as ET
 
-from darkwatch.casefile import map_svg as map_mod
-from darkwatch.casefile.facts import build_facts
-from darkwatch.casefile.map_svg import render_map
+from nimbus.casefile import map_svg as map_mod
+from nimbus.casefile.facts import build_facts
+from nimbus.casefile.map_svg import render_map
 
 
 def test_svg_has_scale_and_north():

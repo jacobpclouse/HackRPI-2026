@@ -2,9 +2,9 @@ from datetime import datetime, timedelta, timezone
 
 import numpy as np
 
-from darkwatch.ais import ais_silences, annotate_overlap
-from darkwatch.detection import CFARDetector, Fix, confidence_score, interpolate_track, match_detections
-from darkwatch.orbit import Gap
+from nimbus.ais import ais_silences, annotate_overlap
+from nimbus.detection import CFARDetector, Fix, confidence_score, interpolate_track, match_detections
+from nimbus.orbit import Gap
 
 
 def test_cfar_finds_a_bright_cluster_and_ignores_speckle():

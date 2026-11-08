@@ -17,9 +17,9 @@ BACKEND = Path(__file__).resolve().parents[2]
 if str(BACKEND) not in sys.path:
     sys.path.insert(0, str(BACKEND))
 
-from darkwatch import paths  # noqa: E402
+from nimbus import paths  # noqa: E402
 
-logger = logging.getLogger("darkwatch.prepare")
+logger = logging.getLogger("nimbus.prepare")
 
 SCENE_ID = "S1D_IW_GRDH_1SDV_20261102T052330_20261102T052402_005284_00A0D2_rtc"
 SCENE_TIME = datetime(2026, 11, 2, 5, 23, 46, tzinfo=timezone.utc)

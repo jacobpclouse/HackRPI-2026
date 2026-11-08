@@ -8,7 +8,7 @@ function render(data) {
   const nar = data.narrative || {};
   const prov = data.provenance || {};
   const date = (scene.datetime || "").slice(0, 10);
-  document.title = `DarkWatch incident brief · Kattegat`;
+  document.title = `Nimbus incident brief · Kattegat`;
   const rows = (data.candidates || []).map((facts) => {
     const tgt = facts.target || {};
     const pri = facts.priority || {};
@@ -30,7 +30,7 @@ function render(data) {
   }).join("");
   root.innerHTML =
     `<header class="band"><div>` +
-    `<h1>DarkWatch incident brief · Kattegat · ${esc(date)}</h1>` +
+    `<h1>Nimbus incident brief · Kattegat · ${esc(date)}</h1>` +
     `<p class="marking">${esc(data.marking || "")}</p>` +
     `</div><p class="scene-id">${esc(data.generated_at || "")}</p></header>` +
     `<p class="bluf">${esc(nar.summary || "")}</p>` +

@@ -1,0 +1,6 @@
+resources:
+  schemas:
+    nimbus_schema:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      comment: Nimbus Sentinel-1 scenes, detections, AIS, and SAR passes.

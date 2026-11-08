@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Serverless refresh for DarkWatch.
+"""Serverless refresh for Nimbus.
 
 Finds the repo from ``sys.argv[0]`` / cwd / ``--repo-root`` because a
 serverless ``spark_python_task`` has no ``__file__``. Downloads the newest
 Sentinel-1 RTC scene over the Kattegat chip that has a Danish AIS day file,
 runs CFAR and AIS matching, predicts passes, and writes Delta tables. If the
-``darkwatch`` / ``tiger_url`` secret can be read, the same rows go to Tiger.
+``nimbus`` / ``tiger_url`` secret can be read, the same rows go to Tiger.
 """
 
 from __future__ import annotations
@@ -18,16 +18,16 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-logger = logging.getLogger("darkwatch.jobs")
+logger = logging.getLogger("nimbus.jobs")
 
 
 def _bootstrap(argv0: str, repo_root_arg: str | None):
     """Put backend/ on sys.path. The package is not importable until then."""
     cwd = Path.cwd()
     candidates = []
-    # Read directly: darkwatch.config is not importable yet.
-    if os.environ.get("DARKWATCH_ROOT"):
-        candidates.append(Path(os.environ["DARKWATCH_ROOT"]))
+    # Read directly: nimbus.config is not importable yet.
+    if os.environ.get("NIMBUS_ROOT"):
+        candidates.append(Path(os.environ["NIMBUS_ROOT"]))
     if repo_root_arg:
         candidates.append(Path(repo_root_arg))
     if argv0:
@@ -38,18 +38,18 @@ def _bootstrap(argv0: str, repo_root_arg: str | None):
     candidates.extend([cwd, *cwd.parents])
     backend = None
     for candidate in candidates:
-        if (candidate / "backend" / "darkwatch" / "paths.py").is_file():
+        if (candidate / "backend" / "nimbus" / "paths.py").is_file():
             backend = candidate / "backend"
             break
     if backend is None:
         raise SystemExit(
-            "Cannot locate DarkWatch. Pass --repo-root or run from the bundle files directory. "
+            "Cannot locate Nimbus. Pass --repo-root or run from the bundle files directory. "
             f"argv0={argv0!r} cwd={cwd}"
         )
     for path in (backend, backend / "scripts"):
         if str(path) not in sys.path:
             sys.path.insert(0, str(path))
-    from darkwatch.paths import repo_root
+    from nimbus.paths import repo_root
 
     return repo_root(argv0=argv0, cwd=cwd, extra=repo_root_arg)
 
@@ -90,8 +90,8 @@ def _search_scene(bbox: tuple[float, float, float, float]) -> dict:
 
 
 def _pass_rows(scene_id: str, summary: dict, refreshed: str) -> list[dict]:
-    from darkwatch.detection import coverage_report
-    from darkwatch.orbit import parse_time
+    from nimbus.detection import coverage_report
+    from nimbus.orbit import parse_time
 
     west, south, east, north = summary["bbox"]
     lat = (south + north) / 2
@@ -232,7 +232,7 @@ def _tiger_url(spark) -> str:
     try:
         from pyspark.dbutils import DBUtils
 
-        return DBUtils(spark).secrets.get(scope="darkwatch", key="tiger_url") or ""
+        return DBUtils(spark).secrets.get(scope="nimbus", key="tiger_url") or ""
     except Exception as exc:
         logger.warning(f"tiger_url secret not used: {exc}")
         return ""
@@ -241,7 +241,7 @@ def _tiger_url(spark) -> str:
 def run(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--catalog", default="workspace")
-    parser.add_argument("--schema", default="darkwatch")
+    parser.add_argument("--schema", default="nimbus")
     parser.add_argument("--repo-root", default="")
     parser.add_argument("--check", action="store_true", help="Resolve the repo root and exit.")
     args = parser.parse_args(argv)
@@ -262,14 +262,14 @@ def run(argv: list[str] | None = None) -> None:
     from prepare.scene_step import clip_scene
     from pyspark.sql import SparkSession
 
-    from darkwatch.geo import by_id
+    from nimbus.geo import by_id
 
     spark = SparkSession.builder.getOrCreate()
     region = by_id("kattegat")
     bbox = tuple(region["bbox"])
     feature = _search_scene(bbox)
     acquired = datetime.fromisoformat(feature["properties"]["datetime"].replace("Z", "+00:00"))
-    work = Path("/tmp/darkwatch-refresh")
+    work = Path("/tmp/nimbus-refresh")
     work.mkdir(parents=True, exist_ok=True)
     bundled_mpa = root / "data" / "demo" / "mpas.geojson"
     if bundled_mpa.exists() and not (work / "mpas.geojson").exists():
@@ -281,7 +281,7 @@ def run(argv: list[str] | None = None) -> None:
         bbox=bbox,
         ais_url=feature["_ais_url"],
         out_dir=work,
-        raw_dir=Path("/tmp/darkwatch-raw"),
+        raw_dir=Path("/tmp/nimbus-raw"),
     )
     target.raw_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"scene {target.scene_id} ais {target.ais_url}")

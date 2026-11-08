@@ -1,17 +1,17 @@
 # Data sources
 
-What DarkWatch reads, what it needs to get it, and whether the packaged demo uses it. URLs that 404'd during this pass were dropped rather than invented. `verified_at` in `backend/darkwatch/catalog/missions.json` is the date a link was last fetched successfully; `null` means it was not checked in this pass.
+What Nimbus reads, what it needs to get it, and whether the packaged demo uses it. URLs that 404'd during this pass were dropped rather than invented. `verified_at` in `backend/nimbus/catalog/missions.json` is the date a link was last fetched successfully; `null` means it was not checked in this pass.
 
 ## Orbits
 
 | Source | Use | Access | License / terms (summary) | Status |
 | --- | --- | --- | --- | --- |
-| [CelesTrak GP](https://celestrak.org) (OMM JSON) | Live SAR catalog, SGP4 / satellite.js | None | Public GP elements; CelesTrak terms | Used. Classic `FORMAT=TLE` is empty for catalog numbers above 99999; DarkWatch ingests OMM and writes Alpha-5 two-line elements for the browser. |
+| [CelesTrak GP](https://celestrak.org) (OMM JSON) | Live SAR catalog, SGP4 / satellite.js | None | Public GP elements; CelesTrak terms | Used. Classic `FORMAT=TLE` is empty for catalog numbers above 99999; Nimbus ingests OMM and writes Alpha-5 two-line elements for the browser. |
 | [Space-Track.org](https://www.space-track.org) | Authoritative GP history | Free account | Space-Track user agreement | Not used. Candidate for historical pass reconstruction. |
 
 ## SAR imagery
 
-Mission pages and catalogs are in `backend/darkwatch/catalog/missions.json`. Access chips in the UI: `OPEN`, `SAMPLE`, `RESTRICTED`, `COMMERCIAL`.
+Mission pages and catalogs are in `backend/nimbus/catalog/missions.json`. Access chips in the UI: `OPEN`, `SAMPLE`, `RESTRICTED`, `COMMERCIAL`.
 
 | Family | Band | Access | Where |
 | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ Also:
 
 ## Ship detection training data
 
-CA-CFAR is still the detector. The ResNet-18 chip classifier was trained on LS-SSDD-v1.0 and is shipped as ONNX. The `Detector` protocol and `xview3_adapter` seam remain in `backend/darkwatch/detection/`.
+CA-CFAR is still the detector. The ResNet-18 chip classifier was trained on LS-SSDD-v1.0 and is shipped as ONNX. The `Detector` protocol and `xview3_adapter` seam remain in `backend/nimbus/detection/`.
 
 | Source | Use | Access | License / terms (summary) | Status |
 | --- | --- | --- | --- | --- |
