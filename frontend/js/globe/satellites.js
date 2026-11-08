@@ -1,6 +1,7 @@
 import { getJSON } from "../api.js";
 import { clockDate } from "../clock.js";
 import { set, state } from "../state.js";
+import { $ } from "../ui/dom.js";
 
 const ORBIT_STEPS = 128;
 const scratchRotation = new Cesium.Matrix3();
@@ -160,6 +161,8 @@ export function clearSatelliteSelection() {
     orbitPrimitive = null;
   }
   applyStyles();
+  const cursor = $("hud-cursor");
+  if (cursor) cursor.textContent = "—";
 }
 
 export async function loadSatellites() {
@@ -198,14 +201,55 @@ export async function loadSatellites() {
   return data;
 }
 
+export function satelliteForFamily(family) {
+  const members = state.sats.filter((item) => item.rec.family === family && item.lat != null);
+  if (!members.length) return null;
+  const selected = state.selectedSatellite && state.selectedSatellite.norad;
+  const idx = members.findIndex((item) => item.rec.norad === selected);
+  if (idx >= 0 && members.length > 1) {
+    return members[(idx + 1) % members.length].rec;
+  }
+  const camera = state.viewer && state.viewer.camera.positionWC;
+  if (!camera) return members[0].rec;
+  const camDir = Cesium.Cartesian3.normalize(camera, new Cesium.Cartesian3());
+  const scratch = new Cesium.Cartesian3();
+  let best = members[0];
+  let bestDot = Infinity;
+  for (const sat of members) {
+    const pos = sat.point && sat.point.position;
+    if (!pos) continue;
+    const satDir = Cesium.Cartesian3.normalize(pos, scratch);
+    const dot = Cesium.Cartesian3.dot(camDir, satDir);
+    if (dot < bestDot) {
+      bestDot = dot;
+      best = sat;
+    }
+  }
+  return best.rec;
+}
+
+const VIEW_ABOVE_M = 10_000_000;
+
 export function flyToSelection() {
   const rec = state.selectedSatellite;
   const sat = rec && state.sats.find((item) => item.rec.norad === rec.norad);
-  if (!sat || sat.lon == null) return;
+  const pos = sat && sat.point && sat.point.position;
+  if (!pos) return;
   state.viewer.trackedEntity = undefined;
+  const radial = Cesium.Cartesian3.normalize(pos, new Cesium.Cartesian3());
+  const destination = Cesium.Cartesian3.add(
+    pos,
+    Cesium.Cartesian3.multiplyByScalar(radial, VIEW_ABOVE_M, new Cesium.Cartesian3()),
+    new Cesium.Cartesian3(),
+  );
   state.viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(sat.lon, sat.lat, Math.max(400000, (sat.altKm || 700) * 400)),
-    duration: 2.5,
+    destination,
+    orientation: {
+      heading: 0,
+      pitch: Cesium.Math.toRadians(-90),
+      roll: 0,
+    },
+    duration: 2.2,
     easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
   });
 }

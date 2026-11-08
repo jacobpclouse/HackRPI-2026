@@ -1,18 +1,20 @@
 import { getJSON } from "./api.js";
 import { bindClock, coverageStart, cycleSpeed, onTick, returnToLive, togglePause } from "./clock.js";
 import { dimForScene, loadAisOnly, loadGlobalShips, setAisOnlyVisible, setGlobalVisible, startShipPoll } from "./globe/ships.js";
+import { closeAnalyze, isAnalyzeOpen, openAnalyze, showAnalysisOnGlobe, wireAnalyze } from "./analyze.js";
 import { loadMpas, setLayerVisible, showScene } from "./globe/scene.js";
 import {
   applyFleetFilter,
   clearSatelliteSelection,
   flyToSelection,
   loadSatellites,
+  satelliteForFamily,
   selectSatellite,
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
-import { focusDetection, idleInspector, showAisOnly, showGlobalShip, showModelCard, showSatellite } from "./panels/inspector.js";
-import { markKattegat, renderHudChips, renderLegend, renderStatusLegend, updateShipDockCounts, wireDock } from "./panels/layers.js";
+import { focusDetection, idleInspector, paintSelectedSatellite, showAisOnly, showGlobalShip, showModelCard, showSatellite } from "./panels/inspector.js";
+import { markKattegat, markLegendFamily, renderHudChips, renderLegend, renderStatusLegend, updateShipDockCounts, wireDock, wireLegend } from "./panels/layers.js";
 import { set } from "./state.js";
 import { bindScrub, drawTimeline, paint as paintTimeline } from "./timeline.js";
 import { $ } from "./ui/dom.js";
@@ -54,6 +56,17 @@ function clearSelection() {
   clearSatelliteSelection();
   clearSwath();
   idleInspector();
+  markLegendFamily(null);
+}
+
+function selectFleet(family) {
+  const rec = satelliteForFamily(family);
+  if (!rec) return;
+  selectSatellite(rec);
+  showSatellite(rec);
+  drawSwathFor(rec);
+  markLegendFamily(family);
+  flyToSelection();
 }
 
 function wire() {
@@ -72,10 +85,20 @@ function wire() {
     onGlobalAis: setGlobalVisible,
     onAisOnly: setAisOnlyVisible,
     onDet: (on) => setLayerVisible("det", on),
+    onRadar: (on) => setLayerVisible("radar", on),
+    onUpload: (on) => setLayerVisible("upload", on),
     onKattegat: openKattegat,
   });
+  wireAnalyze({ onShowGlobe: showAnalysisOnGlobe });
+  wireLegend(selectFleet);
   document.addEventListener("keydown", (event) => {
     if (event.target.closest("input, textarea")) return;
+    if (event.key === "a" || event.key === "A") {
+      event.preventDefault();
+      if (isAnalyzeOpen()) closeAnalyze();
+      else openAnalyze();
+      return;
+    }
     if (event.key === "k" || event.key === "K") openKattegat();
     if (event.key === " ") {
       event.preventDefault();
@@ -83,7 +106,13 @@ function wire() {
     }
     if (event.key === "l" || event.key === "L") returnToLive();
     if (event.key === "f" || event.key === "F") flyToSelection();
-    if (event.key === "Escape") clearSelection();
+    if (event.key === "Escape") {
+      if (isAnalyzeOpen()) {
+        closeAnalyze();
+        return;
+      }
+      clearSelection();
+    }
     if (event.key === "?") $("shortcuts").showModal();
   });
 }
@@ -102,6 +131,7 @@ async function main() {
       selectSatellite(rec);
       showSatellite(rec);
       drawSwathFor(rec);
+      markLegendFamily(rec.family);
       return;
     }
     if (id && id.detection) {
@@ -133,6 +163,7 @@ async function main() {
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   onTick(() => {
     paintTimeline();
+    paintSelectedSatellite();
   });
   try {
     const [, missions, health, model] = await Promise.all([

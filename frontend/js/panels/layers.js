@@ -1,6 +1,6 @@
 import { shipCounts } from "../globe/ships.js";
 import { state } from "../state.js";
-import { $ } from "../ui/dom.js";
+import { $, esc } from "../ui/dom.js";
 
 export function renderLegend() {
   const box = $("legend");
@@ -24,7 +24,7 @@ export function renderLegend() {
     `<h2>SAR fleets</h2><div class="legend-grid">` +
     names.map((name) => {
       const row = families[name];
-      return `<div class="legend-row"><span class="legend-swatch" style="background:${row.color}"></span>${name}<span class="n">${row.n}</span></div>`;
+      return `<button type="button" class="legend-row" data-family="${esc(name)}"><span class="legend-swatch" style="background:${row.color}"></span>${esc(name)}<span class="n">${row.n}</span></button>`;
     }).join("") +
     `</div>`;
   box.hidden = !state.layers.sats;
@@ -120,7 +120,25 @@ export function markKattegat(on) {
   $("place-kattegat").classList.toggle("on", on);
 }
 
-export function wireDock({ onSats, onAis, onGlobalAis, onAisOnly, onDet, onKattegat }) {
+export function markLegendFamily(family) {
+  const box = $("legend");
+  if (!box) return;
+  box.querySelectorAll("[data-family]").forEach((row) => {
+    row.classList.toggle("on", family != null && row.dataset.family === family);
+  });
+}
+
+export function wireLegend(onSelectFamily) {
+  const box = $("legend");
+  if (!box) return;
+  box.addEventListener("click", (event) => {
+    const row = event.target.closest("[data-family]");
+    if (!row) return;
+    onSelectFamily(row.dataset.family);
+  });
+}
+
+export function wireDock({ onSats, onAis, onGlobalAis, onAisOnly, onDet, onKattegat, onRadar, onUpload }) {
   const bind = (id, key, fn) => {
     $(id).addEventListener("click", () => {
       state.layers[key] = !state.layers[key];
@@ -137,6 +155,8 @@ export function wireDock({ onSats, onAis, onGlobalAis, onAisOnly, onDet, onKatte
   bind("dock-global-ais", "globalAis", onGlobalAis);
   bind("dock-ais-only", "aisOnly", onAisOnly);
   bind("dock-det", "det", onDet);
+  if ($("dock-radar")) bind("dock-radar", "radar", onRadar);
+  if ($("dock-upload")) bind("dock-upload", "upload", onUpload);
   $("place-kattegat").addEventListener("click", onKattegat);
 }
 

@@ -74,9 +74,9 @@ main {
 #legend {
   position: absolute;
   right: var(--s4);
-  bottom: 56px;
+  bottom: var(--s4);
   z-index: 3;
-  pointer-events: none;
+  pointer-events: auto;
   max-width: 220px;
 }
 

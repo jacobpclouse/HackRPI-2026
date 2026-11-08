@@ -88,6 +88,7 @@ export function createViewer() {
       tip.hidden = true;
       hoverDetection(null);
     }
+    if (state.selectedSatellite) return;
     const cartesian = viewer.camera.pickEllipsoid(move.endPosition, Cesium.Ellipsoid.WGS84);
     if (!cartesian) {
       $("hud-cursor").textContent = "—";

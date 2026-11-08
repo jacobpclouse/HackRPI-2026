@@ -1,7 +1,10 @@
 import { getJSON } from "../api.js";
 import { set, state } from "../state.js";
+import { toast } from "../ui/dom.js";
 
-const layers = { scene: null, tracks: [], dets: [], mpas: null };
+const layers = { scene: null, tiles: null, tracks: [], dets: [], mpas: null, upload: [] };
+let tileErrors = 0;
+let tilesDisabled = false;
 
 export async function loadMpas() {
   const data = await getJSON("/api/mpas");
@@ -20,6 +23,8 @@ export function setLayerVisible(name, on) {
   if (name === "mpa" && layers.mpas) layers.mpas.show = on;
   if (name === "ais") for (const entity of layers.tracks) entity.show = on;
   if (name === "det") for (const entity of layers.dets) entity.show = on;
+  if (name === "radar" && layers.tiles) layers.tiles.show = on && !tilesDisabled;
+  if (name === "upload") for (const entity of layers.upload) entity.show = on;
 }
 
 export async function clearSceneLayers() {
@@ -27,6 +32,10 @@ export async function clearSceneLayers() {
   if (layers.scene) {
     viewer.imageryLayers.remove(layers.scene, true);
     layers.scene = null;
+  }
+  if (layers.tiles) {
+    viewer.imageryLayers.remove(layers.tiles, true);
+    layers.tiles = null;
   }
   for (const entity of layers.tracks) viewer.entities.remove(entity);
   for (const entity of layers.dets) viewer.entities.remove(entity);
@@ -143,10 +152,87 @@ export async function showScene() {
   await clearSceneLayers();
   const provider = await Cesium.SingleTileImageryProvider.fromUrl("/api/scene/preview.png", { rectangle: rect });
   layers.scene = state.viewer.imageryLayers.addImageryProvider(provider);
+  await addRadarTiles(rect);
   const dets = await getJSON("/api/detections");
   const ais = await getJSON("/api/ais");
   addDetections(dets);
   addTracks(ais);
   set({ sceneOn: true });
   return { scene, dets };
+}
+
+async function addRadarTiles(rect) {
+  tileErrors = 0;
+  tilesDisabled = false;
+  try {
+    const tiles = await getJSON("/api/scene/tiles");
+    const maxLevel = Math.min(tiles.maxzoom ?? 13, 13);
+    const imagery = new Cesium.UrlTemplateImageryProvider({
+      url: tiles.template,
+      rectangle: rect,
+      minimumLevel: tiles.minzoom ?? 0,
+      maximumLevel: maxLevel,
+      credit: tiles.attribution || "",
+    });
+    imagery.errorEvent.addEventListener(() => {
+      tileErrors += 1;
+      if (!tilesDisabled && tileErrors > 10) {
+        tilesDisabled = true;
+        if (layers.tiles) layers.tiles.show = false;
+        toast("Radar tiles failed to load. Showing the static preview.", "tiles");
+      }
+    });
+    layers.tiles = state.viewer.imageryLayers.addImageryProvider(imagery);
+    layers.tiles.show = state.layers.radar;
+  } catch (err) {
+    console.warn(err);
+  }
+}
+
+export function clearUploadLayer() {
+  for (const entity of layers.upload) state.viewer.entities.remove(entity);
+  layers.upload = [];
+}
+
+export function showUploadDetections(analysis) {
+  clearUploadLayer();
+  const show = state.layers.upload;
+  const dets = (analysis.detections || []).filter((d) => d.status === "vessel_like" && d.lat != null);
+  for (const det of dets) {
+    const ais = (det.ais && det.ais.status) || "no_ais";
+    const color = ais === "matched"
+      ? cssColor("#3dd68c")
+      : (ais === "dark_candidate" ? cssColor("#ff4d4f") : cssColor("#e6eaf0"));
+    const entity = state.viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(det.lon, det.lat),
+      show,
+      ellipse: {
+        semiMinorAxis: 400,
+        semiMajorAxis: 400,
+        material: color.withAlpha(0.12),
+        outline: true,
+        outlineColor: color,
+        height: 0,
+      },
+      label: {
+        text: det.id,
+        font: "11px JetBrains Mono, monospace",
+        fillColor: Cesium.Color.WHITE,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+        pixelOffset: new Cesium.Cartesian2(0, -12),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+      },
+    });
+    entity.uploadDet = det;
+    layers.upload.push(entity);
+  }
+  const btn = document.getElementById("dock-upload");
+  if (btn) {
+    btn.hidden = layers.upload.length === 0;
+    btn.classList.toggle("on", show);
+    btn.textContent = `Upload ${layers.upload.length}`;
+  }
 }

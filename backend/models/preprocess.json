@@ -1,0 +1,13 @@
+{
+ "ref_p50": 54.0,
+ "ref_p99": 254.0,
+ "proposals": {
+  "k": 3.0,
+  "guard": 5,
+  "train": 15,
+  "min_px": 3
+ },
+ "chip": 64,
+ "nodata_level": 8,
+ "nodata_max_frac": 0.05
+}

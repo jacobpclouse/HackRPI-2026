@@ -81,6 +81,14 @@ or `make dev`. Open http://127.0.0.1:8741
 
 Copy `.env.example` to `.env` for optional Gemini, Fish Audio, Cesium ion, Tiger, GFW, AISStream. All stay off when unset. Set `AISSTREAM_API_KEY` and `AIS_GLOBAL_REFRESH=1` to refresh the global AIS layer in the background.
 
+## Analyze imagery
+
+Press **A** or **Analyze imagery**. Drop a JPEG/PNG/GeoTIFF (or pick an LS-SSDD / Kattegat sample). The bright-spot proposer and ResNet-18 classifier draw boxes, a pipeline funnel, and a score histogram.
+
+![Analyze imagery](docs/screenshots/analyze.png)
+
+Any Sentinel-1 GeoTIFF gets boxes and a location; AIS comparison works where AIS data is loaded (currently Danish waters, 2 Nov 2026).
+
 ## Team
 
 HackRPI 2026.

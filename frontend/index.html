@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DarkWatch</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -14,6 +16,7 @@
   <link href="/css/layout.css" rel="stylesheet" />
   <link href="/css/components.css" rel="stylesheet" />
   <link href="/css/globe.css" rel="stylesheet" />
+  <link href="/css/analyze.css" rel="stylesheet" />
 </head>
 <body>
   <div id="app">
@@ -28,6 +31,7 @@
         <button type="button" id="speed" title="Simulation speed">1×</button>
         <button type="button" id="live" hidden>Live</button>
         <span id="status-dot" class="status-dot" title="Data sources"></span>
+        <button type="button" id="analyze-open">Analyze imagery</button>
       </div>
     </header>
 
@@ -48,8 +52,10 @@
         <button type="button" id="dock-ais" class="on">AIS</button>
         <button type="button" id="dock-global-ais" class="on">Global AIS</button>
         <button type="button" id="dock-ais-only" class="on">AIS-only in scene</button>
+        <button type="button" id="dock-radar" class="on">Radar tiles</button>
         <button type="button" id="dock-det" class="on">Detections</button>
         <button type="button" id="dock-model">Classifier</button>
+        <button type="button" id="dock-upload" hidden>Upload</button>
       </div>
 
       <aside id="legend" hidden></aside>
@@ -72,11 +78,74 @@
     </main>
   </div>
 
+  <div id="analyze" hidden>
+    <header class="analyze-head">
+      <div>
+        <h1>ANALYZE IMAGERY</h1>
+        <span class="chip">ResNet-18 · test AP 0.981</span>
+        <p id="analyze-mode" class="hint"></p>
+      </div>
+      <button type="button" id="analyze-close">Back to globe</button>
+    </header>
+    <div class="analyze-body">
+      <aside class="analyze-left">
+        <form id="analyze-form">
+          <label class="dropzone" id="analyze-drop">
+            Drop a SAR image
+            <span class="micro">JPEG, PNG, or GeoTIFF. Optional VOC XML.</span>
+            <input id="analyze-image" type="file" accept=".jpg,.jpeg,.png,.tif,.tiff,image/jpeg,image/png,image/tiff" hidden />
+          </label>
+          <label class="micro">Optional labels (Pascal VOC XML)
+            <input id="analyze-xml" type="file" accept=".xml,text/xml" />
+          </label>
+          <label class="micro">Acquisition time (ISO, optional)
+            <input id="analyze-time" type="text" placeholder="2026-11-02T05:23:46Z" />
+          </label>
+          <button type="submit" id="analyze-run">Analyze</button>
+        </form>
+        <h2>Samples</h2>
+        <div id="analyze-samples"></div>
+      </aside>
+      <section class="analyze-center">
+        <div id="analyze-viewer">
+          <canvas id="analyze-canvas"></canvas>
+          <div id="analyze-slider" hidden><div id="analyze-slider-bar"></div></div>
+          <div id="analyze-tooltip" hidden></div>
+          <div id="analyze-scale" class="data" hidden></div>
+        </div>
+        <div class="analyze-toggles">
+          <label class="micro"><input type="checkbox" id="analyze-show-rejected" /> Show rejected</label>
+          <label class="micro"><input type="checkbox" id="analyze-show-labels" checked /> Show labels</label>
+          <label class="micro"><input type="checkbox" id="analyze-compare" /> Before / after</label>
+        </div>
+      </section>
+      <aside class="analyze-right">
+        <div id="analyze-heroes"></div>
+        <div id="analyze-gt"></div>
+        <div id="analyze-ais"></div>
+        <canvas id="analyze-hist" width="280" height="90"></canvas>
+        <div id="analyze-chip-zoom"></div>
+        <p id="analyze-model" class="hint"></p>
+      </aside>
+    </div>
+    <div id="analyze-funnel"></div>
+    <div class="analyze-table-wrap"><table id="analyze-table"></table></div>
+    <footer class="analyze-foot">
+      <p class="disclaimer" id="analyze-footnote"></p>
+      <div class="analyze-actions">
+        <a id="analyze-dl-png" hidden>Download annotated PNG</a>
+        <a id="analyze-dl-json" hidden>Download report (JSON)</a>
+        <button type="button" id="analyze-globe" hidden>Show on globe</button>
+      </div>
+    </footer>
+  </div>
+
   <div id="toasts" aria-live="polite"></div>
 
   <dialog id="shortcuts">
     <h2>KEYBOARD</h2>
     <dl>
+      <div><dt>A</dt><dd>Analyze imagery</dd></div>
       <div><dt>K</dt><dd>Kattegat</dd></div>
       <div><dt>Space</dt><dd>Play / pause</dd></div>
       <div><dt>L</dt><dd>Return to live</dd></div>

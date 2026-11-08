@@ -63,6 +63,23 @@
   color: var(--text);
   text-shadow: 0 1px 2px #05070a;
 }
+#legend .legend-row {
+  width: 100%;
+  margin: 0;
+  padding: 2px 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  text-align: left;
+}
+#legend .legend-row:hover {
+  color: var(--accent);
+  border-color: transparent;
+}
+#legend .legend-row.on {
+  color: var(--accent);
+}
 .legend-swatch {
   width: 8px;
   height: 8px;
