@@ -60,7 +60,9 @@ Also:
 | [Protected Planet / WDPA](https://www.protectedplanet.net) | Global protected areas | Token for API | Optional in `scripts/fetch_mpas.py`. Demo uses Natura 2000 instead. |
 | EEA Natura 2000 | Packaged MPA polygons around the Kattegat chip | None (MapServer) | Used (75 sites in `data/demo/mpas.geojson`) |
 | [Marine Regions](https://www.marineregions.org) EEZ boundaries | Later: distance to EEZ | Free | Not used |
-| [Natural Earth](https://www.naturalearthdata.com) 10 m land | Land mask for CFAR | Public domain / Natural Earth terms | Used |
+| [Natural Earth](https://www.naturalearthdata.com) 10 m land | Land mask for CFAR; report-map coastline (`data/reference/land.geojson`) | Public domain / Natural Earth terms | Used |
+| Natural Earth 10 m ports | Nearest major port, distance, and bearing on the case file | Public domain | Used (`data/reference/ports.geojson`) |
+| Natural Earth 10 m admin-0 countries | Nearest-coast country for an approximate jurisdiction line | Public domain | Used (`data/reference/countries.geojson`). Jurisdiction is nearest coastline plus 12 nm, not official maritime boundaries. |
 
 ## Ship detection training data
 

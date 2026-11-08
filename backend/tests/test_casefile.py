@@ -87,3 +87,21 @@ def test_review_validation_and_history_newest_first(tmp_path, monkeypatch):
     case = client.get("/api/casefile/D002").json()
     assert case["review"]["decision"] == "Refer"
     assert case["review"]["analyst"] == "Bea"
+    assert case["facts"]["case"]["id"] == "D002"
+    assert case["narrative"]["bluf"]
+    assert "gemini" in case["provenance"]["line"].lower() or "template" in case["provenance"]["line"].lower()
+
+
+def test_export_and_map_and_health_fields():
+    client = TestClient(create_app())
+    gpx = client.get("/api/casefile/D016/export.gpx?horizon_h=3")
+    assert gpx.status_code == 200
+    assert b"LKP D016" in gpx.content
+    svg = client.get("/api/casefile/D016/map.svg")
+    assert svg.status_code == 200
+    assert b'id="scale"' in svg.content
+    health = client.get("/api/health").json()
+    assert "ports" in health["reference"]
+    assert "configured" in health["gemini"]
+    assert "model" in health["gemini"]
+    assert "key" not in health["gemini"]

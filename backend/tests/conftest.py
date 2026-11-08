@@ -1,4 +1,4 @@
-"""Pin tests to the committed SAR catalog so live CelesTrak cannot fail CI."""
+"""Test defaults: committed SAR catalog, no Gemini HTTP."""
 
 from __future__ import annotations
 
@@ -17,3 +17,8 @@ def _snapshot_catalog(monkeypatch):
         raise RuntimeError("pytest uses the committed snapshot catalog")
 
     monkeypatch.setattr("darkwatch.catalog.source.fetch_remote", _no_remote)
+
+
+@pytest.fixture(autouse=True)
+def _no_gemini_network(monkeypatch):
+    monkeypatch.setattr("darkwatch.config.gemini_api_key", lambda: "")

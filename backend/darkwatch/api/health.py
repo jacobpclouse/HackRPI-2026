@@ -14,6 +14,7 @@ from darkwatch.api.common import scene_summary, store
 from darkwatch.api.ships import health_block as ais_health
 from darkwatch.catalog import status as catalog_status
 from darkwatch.detection import classifier
+from darkwatch.geo.reference import available as reference_available
 from darkwatch.storage import get_snapshot
 
 router = APIRouter()
@@ -64,6 +65,11 @@ def health():
             "threshold": classifier.threshold() if classifier.threshold_path().is_file() else None,
         },
         "ais_global": ais_health(),
+        "reference": reference_available(),
+        "gemini": {
+            "configured": bool(config.gemini_api_key()),
+            "model": config.gemini_model(),
+        },
     }
 
 

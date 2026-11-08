@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DarkWatch incident brief</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/img/favicon-32.png" sizes="32x32" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="/css/tokens.css" rel="stylesheet" />
+  <link href="/css/base.css" rel="stylesheet" />
+  <link href="/css/components.css" rel="stylesheet" />
+  <link href="/css/case.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="no-print case-bar">
+    <a href="/" class="wordmark" aria-label="Nimbus">
+      <img src="/img/Nimbus_white_text_art.png" alt="NIMBUS" />
+    </a>
+    <div class="case-bar-actions">
+      <button type="button" id="brief-print">Download PDF</button>
+    </div>
+  </header>
+  <main id="brief" class="case-page brief-page">
+    <p class="hint">Loading incident brief…</p>
+  </main>
+  <script src="/js/brief.js" type="module"></script>
+</body>
+</html>

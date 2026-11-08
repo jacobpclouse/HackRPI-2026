@@ -165,7 +165,7 @@ export function showPlan(plan) {
       ? `<span class="chip commercial">possible, requires tasking</span>`
       : `<span class="chip">systematic</span>`;
     return (
-      `<button type="button" class="plan-pass${on}" data-pass-norad="${p.norad}" data-pass-center="${esc(p.center)}">` +
+      `<button type="button" class="plan-pass${on}" data-pass-norad="${p.norad}" data-pass-center="${esc(p.center)}" aria-pressed="${p.best ? "true" : "false"}">` +
       `<span>${esc(p.name)}</span>` +
       `<span class="micro">${esc(String(p.hours_after))} h · typical ${esc(fracPct(p.coverage_frac && p.coverage_frac.typical))}</span>` +
       tasked +
@@ -182,9 +182,21 @@ export function showPlan(plan) {
     `<div class="case-actions">` +
     `<button type="button" data-clear-plan>Clear plan</button>` +
     `<a href="/case.html?id=${esc(det.id || "")}" target="_blank" rel="noopener">Open case file</a>` +
+    `<a href="/brief.html" target="_blank" rel="noopener">Incident brief</a>` +
     `</div>`,
   );
   showCard();
+}
+
+export function markPlanPass(norad, center) {
+  const wantNorad = String(norad ?? "");
+  const wantCenter = String(center ?? "");
+  document.querySelectorAll(".plan-pass").forEach((btn) => {
+    const on = btn.getAttribute("data-pass-norad") === wantNorad
+      && btn.getAttribute("data-pass-center") === wantCenter;
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
 }
 
 function matchedPanel(ev) {

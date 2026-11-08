@@ -4,7 +4,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 REQ := backend/requirements.txt backend/requirements-job.txt backend/requirements-dev.txt backend/constraints.txt
 
-.PHONY: dev test prepare check-job lint fmt clean
+.PHONY: dev test prepare reference check-job lint fmt clean
 
 # One venv with app, job, and dev dependencies. Rebuilt when any pin changes.
 $(VENV)/.installed: $(REQ)
@@ -22,6 +22,9 @@ test: $(VENV)/.installed
 
 prepare: $(VENV)/.installed
 	$(PY) backend/scripts/prepare_demo.py
+
+reference: $(VENV)/.installed
+	$(PY) backend/scripts/fetch_reference.py
 
 check-job: $(VENV)/.installed
 	$(PY) backend/jobs/refresh.py --check

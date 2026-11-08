@@ -14,7 +14,7 @@ import {
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
-import { focusDetection, idleInspector, paintSelectedSatellite, showAisOnly, showDetection, showGlobalShip, showModelCard, showPlan, showSatellite } from "./panels/inspector.js";
+import { focusDetection, idleInspector, markPlanPass, paintSelectedSatellite, showAisOnly, showDetection, showGlobalShip, showModelCard, showPlan, showSatellite } from "./panels/inspector.js";
 import { markKattegat, markLegendFamily, renderHudChips, renderLegend, renderStatusLegend, updateShipDockCounts, wireDock, wireLegend } from "./panels/layers.js";
 import { set, state } from "./state.js";
 import { bindScrub, drawTimeline, paint as paintTimeline } from "./timeline.js";
@@ -100,6 +100,7 @@ function passFromPlan(norad, center) {
 async function applyPass(pass) {
   if (!pass || !activePlan) return;
   const det = activePlan.detection;
+  markPlanPass(pass.norad, pass.center);
   setSimTime(pass.center);
   drawReach(det.lat, det.lon, pass.hours_after, activePlan.speeds_kn);
   const sat = state.sats.find((item) => item.rec.norad === pass.norad);
