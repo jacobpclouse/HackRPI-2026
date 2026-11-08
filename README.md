@@ -12,6 +12,8 @@ A side-looking radar satellite only illuminates a strip offset from its ground t
 
 The globe is the product. Click **Kattegat** for a Sentinel-1D chip (2 Nov 2026). Green rings matched public AIS. Red rings are dark candidates (vessel-like, transient, no public AIS). Grey dashed rings are deprioritized (land, rocks, or not vessel-like). Hollow grey rings are AIS-only (broadcasting at the pass, not seen by radar). The classifier card and the detection inspector show how that call was made.
 
+**Predict and act.** Dark candidates get a **Reacquire** control (reach rings, next SAR passes, clock scrub) and an **Open case file** page with evidence, verification steps, limits, and analyst sign-off. Reacquisition plans and case files are generated for Kattegat dark candidates.
+
 Global ships are self-reported AIS positions shown for context. Only ships inside the Sentinel-1 scene are checked against radar.
 
 ## What's novel

@@ -25,6 +25,7 @@ from darkwatch.orbit.orbit import (
 )
 from darkwatch.orbit.passes import (
     Pass,
+    abeam_passes,
     display_ranges_km,
     find_passes,
     in_swath,
@@ -32,11 +33,13 @@ from darkwatch.orbit.passes import (
     predict_passes,
     spec_of,
     swath_polygon,
+    swath_reaches,
 )
 
 __all__ = [
     "Gap",
     "Pass",
+    "abeam_passes",
     "along_cross_km",
     "along_cross_km_many",
     "alpha5",
@@ -63,6 +66,7 @@ __all__ = [
     "satrec_from_omm",
     "spec_of",
     "swath_polygon",
+    "swath_reaches",
     "tle_lines",
     "wrap_lon",
 ]

@@ -7,6 +7,7 @@ httpx
 numpy
 scipy
 shapely
+pyproj
 sgp4
 python-dateutil
 python-dotenv
