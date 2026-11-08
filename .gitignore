@@ -19,8 +19,15 @@ __pycache__/
 credentials.json
 frontend/config.js
 
-# Local markdown
-*.md
+# Training artifacts. The shipped ONNX and demo evidence stay tracked.
+*.onnx.data
+*.pt
+*.pth
+chips.npz
+lsssdd*/
+*.ipynb_checkpoints/
+!backend/models/*.onnx
+!data/demo/evidence/**
 
 # DarkWatch runtime data
 data/cache/

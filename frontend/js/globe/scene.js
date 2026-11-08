@@ -35,33 +35,83 @@ export async function clearSceneLayers() {
   set({ sceneOn: false });
 }
 
+function cssColor(tokenHex) {
+  return Cesium.Color.fromCssColorString(tokenHex);
+}
+
+function ringPositions(lon, lat, radiusM, steps = 64) {
+  const out = [];
+  const latRad = (lat * Math.PI) / 180;
+  const dlat = radiusM / 111320;
+  const dlon = radiusM / (111320 * Math.max(0.2, Math.cos(latRad)));
+  for (let i = 0; i <= steps; i += 1) {
+    const a = (i / steps) * Math.PI * 2;
+    out.push(lon + dlon * Math.sin(a), lat + dlat * Math.cos(a));
+  }
+  return Cesium.Cartesian3.fromDegreesArray(out);
+}
+
 function addDetections(collection) {
   const show = state.layers.det;
+  const matchedC = cssColor("#3dd68c");
+  const unmatchedC = cssColor("#ff4d4f");
+  const depriC = cssColor("#545e6c");
   for (const feature of collection.features) {
     const [lon, lat] = feature.geometry.coordinates;
-    const matched = feature.properties.matched;
-    const color = Cesium.Color.fromCssColorString(matched ? "#3dd68c" : "#ff4d4f");
+    const status = feature.properties.candidate_status
+      || (feature.properties.matched ? "matched" : "unreviewed");
+    const dark = status === "dark_candidate";
+    const depri = status === "deprioritized";
+    const matched = status === "matched";
+    const color = matched ? matchedC : (depri ? depriC : unmatchedC);
+    const radius = matched ? 450 : 700;
     const entity = state.viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(lon, lat),
       show,
       point: {
-        pixelSize: matched ? 6 : 9,
-        color,
-        outlineColor: Cesium.Color.WHITE,
+        pixelSize: matched ? 6 : (depri ? 5 : 9),
+        color: depri || status === "unreviewed" ? Cesium.Color.TRANSPARENT : color,
+        outlineColor: color,
         outlineWidth: matched ? 0 : 1,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
       },
-      ellipse: {
-        semiMinorAxis: matched ? 450 : 700,
-        semiMajorAxis: matched ? 450 : 700,
-        material: color.withAlpha(0.12),
+      ellipse: depri ? undefined : {
+        semiMinorAxis: radius,
+        semiMajorAxis: radius,
+        material: status === "unreviewed" ? Cesium.Color.TRANSPARENT : color.withAlpha(0.12),
         outline: true,
         outlineColor: color,
         height: 0,
       },
+      polyline: depri ? {
+        positions: ringPositions(lon, lat, radius),
+        width: 1,
+        material: new Cesium.PolylineDashMaterialProperty({ color: depriC, dashLength: 10 }),
+        clampToGround: true,
+      } : undefined,
+      label: {
+        text: feature.properties.id,
+        font: "11px JetBrains Mono, monospace",
+        fillColor: Cesium.Color.WHITE,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 2,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+        pixelOffset: new Cesium.Cartesian2(0, -12),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        show: dark,
+      },
     });
     entity.detection = feature;
     layers.dets.push(entity);
+  }
+}
+
+export function hoverDetection(feature) {
+  for (const entity of layers.dets) {
+    if (!entity.label) continue;
+    const status = entity.detection.properties.candidate_status;
+    entity.label.show = status === "dark_candidate" || (feature && entity.detection === feature);
   }
 }
 

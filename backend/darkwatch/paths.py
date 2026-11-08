@@ -87,3 +87,11 @@ def snapshot_dir() -> Path:
 
 def frontend_dir() -> Path:
     return root() / "frontend"
+
+
+def models_dir() -> Path:
+    return root() / "backend" / "models"
+
+
+def evidence_dir() -> Path:
+    return demo_dir() / "evidence"

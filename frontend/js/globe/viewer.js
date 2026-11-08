@@ -1,3 +1,4 @@
+import { hoverDetection } from "./scene.js";
 import { state } from "../state.js";
 import { $ } from "../ui/dom.js";
 import { coord } from "../ui/format.js";
@@ -65,11 +66,16 @@ export function createViewer() {
       const alt = sat && sat.altKm != null ? `  ${sat.altKm.toFixed(0)} km` : "";
       tip.hidden = false;
       tip.textContent = `${rec.name}  ${rec.family}${alt}`;
+      hoverDetection(null);
     } else if (det) {
       tip.hidden = false;
-      tip.textContent = det.properties.id + (det.properties.matched ? "  AIS" : "  unmatched");
+      const status = det.properties.candidate_status
+        || (det.properties.matched ? "matched" : "unreviewed");
+      tip.textContent = `${det.properties.id}  ${status.replace("_", " ")}`;
+      hoverDetection(det);
     } else {
       tip.hidden = true;
+      hoverDetection(null);
     }
     const cartesian = viewer.camera.pickEllipsoid(move.endPosition, Cesium.Ellipsoid.WGS84);
     if (!cartesian) {
@@ -105,6 +111,8 @@ export function flyHome() {
 }
 
 export function pickId(click) {
-  const picked = state.viewer.scene.pick(click.position);
+  const pos = click.position || click.endPosition;
+  if (!pos) return null;
+  const picked = state.viewer.scene.pick(pos);
   return (picked && picked.id) || null;
 }

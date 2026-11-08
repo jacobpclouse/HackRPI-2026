@@ -158,9 +158,9 @@ def _summary(n: int, radius_km: float, t0: datetime, t1: datetime, annotated: li
     dists = [v["matched_detection_km"] for v in other if v.get("matched_detection_km") is not None]
     span = _range_km(dists) if dists else "an unknown distance"
     if len(other) == n:
-        who = "all 1 was" if n == 1 else f"all {n} were"
+        who = "it was" if n == 1 else f"all {n} were"
     else:
-        who = f"{len(other)} of {n} were"
+        who = f"{len(other)} of {n} {'was' if len(other) == 1 else 'were'}"
     return head + f"; {who} matched to other detections {span} away at the time of the pass."
 
 

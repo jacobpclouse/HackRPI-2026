@@ -24,6 +24,7 @@ sync:
     - backend/tests
     - docs/screenshots
     - "**/__pycache__"
+  # Keep backend/models/ and data/demo/evidence/ in the sync. Do not add them here.
 
 # The workspace host comes from the CLI profile or DATABRICKS_HOST.
 # Production mode keeps the app name `darkwatch` and the job name
