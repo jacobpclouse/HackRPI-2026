@@ -46,7 +46,46 @@
         <button type="button" id="dock-sats" class="on">Satellites</button>
         <button type="button" id="dock-ais" class="on">AIS</button>
         <button type="button" id="dock-det" class="on">Detections</button>
+        <button type="button" id="dock-sar">Imagery</button>
       </div>
+
+      <aside id="sar" hidden>
+        <div class="card-head">
+          <h2>Sentinel-1</h2>
+          <button type="button" id="sar-close">Close</button>
+        </div>
+        <p id="sar-status" class="hint"></p>
+        <div id="sar-controls" hidden>
+          <label class="micro" for="sar-day">Pass day (UTC)</label>
+          <input id="sar-day" type="date" />
+          <div class="sar-actions">
+            <button type="button" id="sar-search">Passes in view</button>
+            <button type="button" id="sar-latest">Latest pass</button>
+          </div>
+          <p class="hint">One day, then one acquisition. The image is a single render of this view and refreshes when you stop panning. Ships are shown for that pass only.</p>
+          <label class="micro" for="sar-when">Acquisition</label>
+          <select id="sar-when"></select>
+          <p id="sar-stamp" class="data"></p>
+          <label class="micro" for="sar-viz">Visualization</label>
+          <select id="sar-viz"></select>
+          <label class="check" for="sar-show"><input id="sar-show" type="checkbox" checked /> Show imagery</label>
+          <label class="micro" for="sar-bright">Brightness <b id="sar-bright-val">1.00</b></label>
+          <input id="sar-bright" type="range" min="0.4" max="2" step="0.05" value="1" />
+          <label class="micro" for="sar-contrast">Contrast <b id="sar-contrast-val">1.00</b></label>
+          <input id="sar-contrast" type="range" min="0.4" max="2" step="0.05" value="1" />
+          <label class="micro" for="sar-gamma">Gamma <b id="sar-gamma-val">1.20</b></label>
+          <input id="sar-gamma" type="range" min="0.5" max="2.5" step="0.05" value="1.2" />
+          <label class="micro" for="sar-opacity">Opacity <b id="sar-opacity-val">1.00</b></label>
+          <input id="sar-opacity" type="range" min="0.15" max="1" step="0.05" value="1" />
+          <p class="hint">Orthorectified gamma0, −20 to 0 dB. Gamma 1.2 matches the Browser reference. These sliders are display-only.</p>
+          <ul id="sar-key" class="sar-key" hidden>
+            <li><i class="det"></i> SAR detection, not on AIS</li>
+            <li><i class="matched"></i> SAR detection matched to AIS</li>
+            <li><i class="ais"></i> AIS position at this acquisition</li>
+          </ul>
+          <p id="sar-ships" class="hint"></p>
+        </div>
+      </aside>
 
       <aside id="legend" hidden></aside>
 

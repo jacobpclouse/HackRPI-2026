@@ -118,6 +118,19 @@ def ais_zip() -> str:
     return _get("AIS_ZIP")
 
 
+def cdse_client_id() -> str:
+    return _get("CDSE_CLIENT_ID")
+
+
+def cdse_client_secret() -> str:
+    return _get("CDSE_CLIENT_SECRET")
+
+
+def copernicus_configured() -> bool:
+    """True only when both Copernicus Data Space OAuth values are set."""
+    return bool(cdse_client_id() and cdse_client_secret())
+
+
 def integrations() -> dict[str, bool]:
     """Which optional services are configured. Booleans only, never values."""
     return {
@@ -126,6 +139,7 @@ def integrations() -> dict[str, bool]:
         "tiger": bool(tiger_database_url()),
         "gfw": bool(gfw_api_token()),
         "cesium_ion": bool(cesium_ion_token()),
+        "copernicus": copernicus_configured(),
         "xview3": bool(xview3_weights() and xview3_repo()),
         "sql_warehouse": bool(databricks_warehouse_id() and databricks_host()),
         "wdpa": bool(wdpa_api_token()),

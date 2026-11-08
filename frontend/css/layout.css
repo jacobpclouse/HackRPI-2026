@@ -108,6 +108,20 @@ main {
 
 #card[hidden] { display: none; }
 
+#sar {
+  position: absolute;
+  top: calc(var(--header-h) + 72px);
+  left: var(--s4);
+  z-index: 4;
+  width: min(320px, calc(100% - 32px));
+  max-height: calc(100% - var(--header-h) - var(--timeline-h) - 96px);
+  overflow: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: var(--s3);
+}
+#sar[hidden] { display: none; }
+
 #timeline {
   position: absolute;
   left: 0;

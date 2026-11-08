@@ -16,10 +16,44 @@ export async function loadMpas() {
   layers.mpas = ds;
 }
 
+function shipsAllowed() {
+  return state.shipGate !== "hide";
+}
+
+export function setShipGate(mode) {
+  state.shipGate = mode === "hide" ? "hide" : "follow";
+  applyShipVisibility();
+}
+
+export function setCopernicusCovering(on) {
+  state.copernicusOn = on;
+  if (layers.scene) layers.scene.show = state.sceneOn && !on;
+}
+
+export function applyShipVisibility() {
+  const allow = shipsAllowed();
+  for (const entity of layers.tracks) entity.show = allow && state.layers.ais;
+  for (const entity of layers.dets) entity.show = allow && state.layers.det;
+}
+
 export function setLayerVisible(name, on) {
   if (name === "mpa" && layers.mpas) layers.mpas.show = on;
-  if (name === "ais") for (const entity of layers.tracks) entity.show = on;
-  if (name === "det") for (const entity of layers.dets) entity.show = on;
+  if (name === "ais" || name === "det") {
+    const list = name === "ais" ? layers.tracks : layers.dets;
+    const allow = shipsAllowed();
+    for (const entity of list) entity.show = allow && on;
+  }
+}
+
+export async function ensureShipOverlays() {
+  if (layers.dets.length || layers.tracks.length) {
+    applyShipVisibility();
+    return;
+  }
+  const dets = await getJSON("/api/detections");
+  const ais = await getJSON("/api/ais");
+  if (!layers.dets.length) addDetections(dets);
+  if (!layers.tracks.length) addTracks(ais);
 }
 
 export async function clearSceneLayers() {
@@ -36,7 +70,7 @@ export async function clearSceneLayers() {
 }
 
 function addDetections(collection) {
-  const show = state.layers.det;
+  const show = shipsAllowed() && state.layers.det;
   for (const feature of collection.features) {
     const [lon, lat] = feature.geometry.coordinates;
     const matched = feature.properties.matched;
@@ -66,7 +100,7 @@ function addDetections(collection) {
 }
 
 function addTracks(collection) {
-  const show = state.layers.ais;
+  const show = shipsAllowed() && state.layers.ais;
   for (const feature of collection.features) {
     const flat = [];
     for (const pair of feature.geometry.coordinates) flat.push(pair[0], pair[1]);
@@ -93,6 +127,7 @@ export async function showScene() {
   await clearSceneLayers();
   const provider = await Cesium.SingleTileImageryProvider.fromUrl("/api/scene/preview.png", { rectangle: rect });
   layers.scene = state.viewer.imageryLayers.addImageryProvider(provider);
+  layers.scene.show = !state.copernicusOn;
   const dets = await getJSON("/api/detections");
   const ais = await getJSON("/api/ais");
   addDetections(dets);

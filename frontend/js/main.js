@@ -10,6 +10,7 @@ import {
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
+import { bindCopernicus } from "./panels/copernicus.js";
 import { focusDetection, idleInspector, showSatellite } from "./panels/inspector.js";
 import { markKattegat, renderHudChips, renderLegend, wireDock } from "./panels/layers.js";
 import { set } from "./state.js";
@@ -81,6 +82,7 @@ async function main() {
   bindScrub();
   const viewer = createViewer();
   set({ viewer });
+  bindCopernicus();
   bindClock(viewer);
   const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
   handler.setInputAction((click) => {

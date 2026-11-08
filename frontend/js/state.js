@@ -19,6 +19,8 @@ export const state = {
   sats: [],
   sceneOn: false,
   basemap: "imagery",
+  shipGate: "follow",
+  copernicusOn: false,
   clockLive: true,
   clockSpeed: 1,
   clockOffsetMs: 0,

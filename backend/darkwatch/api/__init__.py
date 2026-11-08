@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from darkwatch import __version__, paths
-from darkwatch.api import coverage, health, media, orbits, scene, validation
+from darkwatch.api import copernicus, coverage, health, media, orbits, scene, validation
 
 
 async def _http_error(request: Request, exc: StarletteHTTPException):
@@ -37,7 +37,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=800)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
-    for module in (health, orbits, coverage, scene, media, validation):
+    for module in (health, orbits, coverage, scene, media, validation, copernicus):
         app.include_router(module.router)
     # Last, so every /api/* route wins over a same-named static file.
     app.mount("/", StaticFiles(directory=str(paths.frontend_dir()), html=True), name="ui")

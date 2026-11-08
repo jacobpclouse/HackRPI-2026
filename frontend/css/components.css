@@ -87,9 +87,49 @@
   font-size: var(--fs-small);
   letter-spacing: 0.08em;
 }
-#card-close {
+#card-close, #sar-close {
   padding: 2px 6px;
 }
+
+#sar label { display: block; margin-top: var(--s2); }
+#sar select, #sar input[type="date"] {
+  width: 100%;
+  margin-top: var(--s1);
+  background: var(--panel-raised);
+}
+#sar input[type="range"] { width: 100%; }
+#sar .check {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin: var(--s3) 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--fs-micro);
+}
+#sar .check input { width: auto; }
+.sar-actions { display: flex; gap: var(--s2); margin-top: var(--s2); }
+.sar-actions button { flex: 1; }
+.sar-key {
+  list-style: none;
+  margin: var(--s3) 0 0;
+  padding: 0;
+}
+.sar-key li {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: var(--fs-small);
+  margin-top: var(--s1);
+}
+.sar-key i {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+}
+.sar-key .det { background: var(--unmatched); }
+.sar-key .matched { background: var(--matched); }
+.sar-key .ais { background: #8a94a3; }
 
 .kv {
   display: flex;
