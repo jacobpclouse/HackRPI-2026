@@ -16,11 +16,17 @@ html, body {
   border-bottom: 1px solid var(--line);
   background: var(--panel);
 }
-.case-bar a {
-  color: var(--text);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: var(--fs-small);
+.case-bar a.wordmark {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  text-decoration: none;
+}
+.case-bar a.wordmark img {
+  height: 28px;
+  width: auto;
+  display: block;
+  mix-blend-mode: screen;
 }
 .case-bar-actions { display: flex; gap: var(--s2); }
 
