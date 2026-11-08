@@ -38,6 +38,39 @@
   border-color: var(--line);
   color: var(--text-2);
 }
+#header-brief {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+#header-brief:hover {
+  border-color: var(--line-strong);
+  color: var(--accent);
+}
+#header-brief .brief-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--unmatched);
+  box-shadow: 0 0 6px var(--unmatched);
+  animation: brief-pulse 1.8s ease-out infinite;
+}
+@keyframes brief-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.75); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 77, 79, 0); }
+  100% { box-shadow: 0 0 6px var(--unmatched); }
+}
 #dock button.on {
   color: var(--text);
   border-color: var(--line-strong);
@@ -247,10 +280,23 @@
   align-items: center;
 }
 .case-actions a {
-  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
   font-size: var(--fs-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.case-actions a:hover {
+  border-color: var(--line-strong);
+  color: var(--accent);
 }
 .plan-list {
   display: flex;
@@ -273,4 +319,6 @@
 .plan-pass.on {
   border-color: var(--coverage);
   color: var(--text);
+  background: var(--panel-raised);
+  box-shadow: inset 2px 0 0 var(--coverage);
 }

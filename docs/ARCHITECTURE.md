@@ -59,9 +59,9 @@ Read order at runtime: Tiger (if `TIGER_DATABASE_URL` is set and has a scene), t
 | `detection/` | CA-CFAR, AIS matching, coverage reports. `Detector` protocol + `xview3_adapter` seam. `classifier.py` scores 64×64 chips (ONNX ResNet-18); it does not replace CFAR. |
 | `imagery/` | Upload/sample pipeline (notebook proposer → chips → classifier → optional VOC / AIS). Planetary Computer TileJSON for the Kattegat radar overlay. |
 | `ais/` | Sample loading, reporting silences, onset-after-pass baseline. |
-| `geo/` | Regions and Natura 2000 helpers. |
+| `geo/` | Regions, Natura 2000 helpers, and packaged Natural Earth ports/land/countries for the report. |
 | `storage/` | `Store` interface, DuckDB, Timescale, live snapshot picker. |
-| `casefile/` | Reach disks (6/12/20 kn), 48 h reacquisition plans, printable case files, and analyst sign-off for Kattegat dark candidates. |
+| `casefile/` | Reach disks (6/12/20 kn), 48 h reacquisition plans, deterministic `facts.py`, guarded Gemini narrative (or template fallback), SVG report map, GPX/KML/GeoJSON/JSON exports, printable two-page case file, one-page incident brief, and analyst sign-off. |
 | `services/` | Briefs (Gemini or template), Fish Audio narration, GFW validation, evidence (`candidate_status`, `ais_context`). |
 | `config.py` | Only module that reads environment variables. |
 | `paths.py` | Repo root via `.darkwatch-root` + `data/`. |
@@ -71,6 +71,8 @@ Read order at runtime: Tiger (if `TIGER_DATABASE_URL` is set and has a scene), t
 Static files, native ES modules, no bundler. `state.js` is the only shared mutable store. Globe modules must not reach into panel DOM; they `set()` and panels subscribe or are called from `main.js`.
 
 Kattegat radar tiles: `GET /api/scene/tiles` returns a Planetary Computer XYZ template (VV dB grayscale). The globe stacks Esri basemap → static `scene_preview.png` → those tiles → MPAs / AIS / detections. `#analyze` is a full-screen overlay for `POST /api/imagery/analyze`.
+
+Case-file reports: `build_facts` is the single source of truth (positions, reach, next five passes, access from `missions.json`, actions). Gemini writes the prose under a system prompt; a numbers guard, banned-term list, and `action_id` check reject anything that does not match the facts, and the page falls back to a deterministic template. GPX/KML/GeoJSON/JSON and the SVG map read that same facts dict.
 
 ## Jobs
 

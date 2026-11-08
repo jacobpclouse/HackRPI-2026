@@ -21,7 +21,8 @@ header {
 
 header .wordmark,
 header .clock-cluster,
-header button {
+header button,
+header a {
   pointer-events: auto;
 }
 
