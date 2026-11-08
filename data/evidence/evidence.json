@@ -1,0 +1,166 @@
+{
+ "model": {
+  "file": "ship_clf_single.onnx",
+  "arch": "ResNet-18 on 64x64 VV chips at 10 m",
+  "train_data": "LS-SSDD-v1.0: scenes 1-9 train, scene 10 validation, scenes 11-15 test",
+  "threshold": 0.7842795252799988,
+  "threshold_rule": "highest threshold keeping >=95% of ships on scene 10",
+  "test": {
+   "ap": 0.981,
+   "ships_kept": 0.968,
+   "cfar_false_alarms_rejected": 0.886,
+   "background_rejected": 0.995
+  },
+  "kattegat": {
+   "ais_confirmed_recognized": 17,
+   "ais_confirmed_total": 18,
+   "miss": "D015 HAGLAND PREMIER, 0.5 km from shore, score 0.63"
+  },
+  "license": "Trained on LS-SSDD-v1.0, which prohibits commercial use"
+ },
+ "scene_grid": "native 10 m UTM (EPSG:32633), Planetary Computer sentinel-1-rtc",
+ "detections": {
+  "D001": {
+   "vessel_score": 0.9999,
+   "vessel_like": true,
+   "chip": "chips/D001.png"
+  },
+  "D002": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D002.png",
+   "persistence": {
+    "strip": "persistence/D002.png",
+    "verdict": "transient",
+    "reviewed": "analyst",
+    "passes_covering": [
+     "2026-10-31T16:53Z",
+     "2026-11-01T05:31Z",
+     "2026-11-02T05:23Z",
+     "2026-11-05T17:01Z",
+     "2026-11-06T16:52Z"
+    ]
+   }
+  },
+  "D003": {
+   "vessel_score": 0.9999,
+   "vessel_like": true,
+   "chip": "chips/D003.png"
+  },
+  "D004": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D004.png"
+  },
+  "D005": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D005.png"
+  },
+  "D006": {
+   "vessel_score": 0.9999,
+   "vessel_like": true,
+   "chip": "chips/D006.png"
+  },
+  "D007": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D007.png"
+  },
+  "D008": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D008.png"
+  },
+  "D009": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D009.png"
+  },
+  "D010": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D010.png"
+  },
+  "D011": {
+   "vessel_score": 0.9999,
+   "vessel_like": true,
+   "chip": "chips/D011.png"
+  },
+  "D012": {
+   "vessel_score": 0.9995,
+   "vessel_like": true,
+   "chip": "chips/D012.png"
+  },
+  "D013": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D013.png"
+  },
+  "D014": {
+   "vessel_score": 1.0,
+   "vessel_like": true,
+   "chip": "chips/D014.png"
+  },
+  "D015": {
+   "vessel_score": 0.6305,
+   "vessel_like": false,
+   "chip": "chips/D015.png"
+  },
+  "D016": {
+   "vessel_score": 0.9998,
+   "vessel_like": true,
+   "chip": "chips/D016.png",
+   "persistence": {
+    "strip": "persistence/D016.png",
+    "verdict": "transient",
+    "reviewed": "analyst",
+    "passes_covering": [
+     "2026-10-31T16:53Z",
+     "2026-11-01T05:31Z",
+     "2026-11-02T05:23Z",
+     "2026-11-05T17:01Z",
+     "2026-11-06T16:52Z"
+    ]
+   }
+  },
+  "D017": {
+   "vessel_score": 0.9984,
+   "vessel_like": true,
+   "chip": "chips/D017.png"
+  },
+  "D018": {
+   "vessel_score": 0.979,
+   "vessel_like": true,
+   "chip": "chips/D018.png"
+  },
+  "D019": {
+   "vessel_score": 0.9987,
+   "vessel_like": true,
+   "chip": "chips/D019.png"
+  },
+  "D020": {
+   "vessel_score": 0.9892,
+   "vessel_like": true,
+   "chip": "chips/D020.png"
+  },
+  "D021": {
+   "vessel_score": 0.0655,
+   "vessel_like": false,
+   "chip": "chips/D021.png",
+   "persistence": {
+    "strip": "persistence/D021.png",
+    "verdict": "persistent",
+    "reviewed": "analyst",
+    "passes_covering": [
+     "2026-10-30T17:01Z",
+     "2026-10-31T16:53Z",
+     "2026-11-01T05:31Z",
+     "2026-11-02T05:23Z",
+     "2026-11-05T17:01Z",
+     "2026-11-06T16:52Z"
+    ]
+   }
+  }
+ }
+}
