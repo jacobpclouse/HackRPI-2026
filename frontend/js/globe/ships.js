@@ -14,6 +14,7 @@ let aisOnly = [];
 let rows = [];
 let fetchedAt = null;
 let excluded = null;
+let extraExcluded = null;
 let pollTimer = null;
 let preRenderRemove = null;
 const occluder = new Cesium.EllipsoidalOccluder(Cesium.Ellipsoid.WGS84, Cesium.Cartesian3.ZERO);
@@ -39,10 +40,22 @@ function arrowCanvas() {
   return canvas;
 }
 
-function inExcluded(lat, lon) {
-  if (!excluded || excluded.length < 4) return false;
-  const [west, south, east, north] = excluded;
+function inBox(lat, lon, box) {
+  if (!box || box.length < 4) return false;
+  const [west, south, east, north] = box;
   return lat >= south && lat <= north && lon >= west && lon <= east;
+}
+
+function inExcluded(lat, lon) {
+  return inBox(lat, lon, excluded) || inBox(lat, lon, extraExcluded);
+}
+
+export function setExtraExclude(bbox) {
+  extraExcluded = bbox || null;
+  for (const row of rows) {
+    const hide = inExcluded(row.ship.lat, row.ship.lon);
+    row.point.show = !hide && state.layers.globalAis;
+  }
 }
 
 function alpha() {

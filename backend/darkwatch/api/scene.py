@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 
 from darkwatch import paths
@@ -42,30 +42,34 @@ def scene_preview():
     return FileResponse(path, media_type="image/png")
 
 
-@router.post("/api/scene/upload", status_code=501)
-def scene_upload():
-    """Reserved: run the detector on a user-supplied SAR chip.
+@router.get("/api/scene/tiles")
+def scene_tiles():
+    from darkwatch.imagery.tiles import load as load_tiles
 
-    Request (multipart/form-data):
-        file        GeoTIFF, single-band VV intensity (linear, not dB), EPSG:4326 or
-                    any CRS rasterio can warp; at most 50 MB.
-        acquired_at ISO 8601 UTC acquisition time (needed for AIS interpolation).
-        platform    optional, e.g. "sentinel-1a".
+    try:
+        return load_tiles()
+    except Exception as exc:
+        raise HTTPException(
+            503,
+            "Radar tiles are unavailable (Planetary Computer unreachable and no cached TileJSON).",
+        ) from exc
 
-    Response 200 (when implemented):
-        {
-          "scene_id": str, "bbox": [west, south, east, north],
-          "detections": GeoJSON FeatureCollection like /api/detections,
-          "summary": {"detections": int, "matched": int, "unmatched": int},
-          "note": "Unmatched means not matched to public AIS. It is not evidence of wrongdoing."
-        }
 
-    When this is implemented, each detection chip will be scored with
-    ``darkwatch.detection.classifier.score`` (64×64 VV, float32 in [0, 1]).
+@router.post("/api/scene/upload")
+async def scene_upload(
+    file: UploadFile | None = File(None),
+    image: UploadFile | None = File(None),
+    labels: UploadFile | None = File(None),
+    acquired_at: str | None = Form(None),
+):
+    from darkwatch.api.imagery import run_analyze
 
-    Until then this returns 501.
-    """
-    raise HTTPException(501, "Scene upload is not implemented yet.")
+    upload = image or file
+    if upload is None:
+        raise HTTPException(400, "Missing image.")
+    data = await upload.read()
+    xml = await labels.read() if labels is not None else None
+    return await run_analyze(data, upload.filename or "upload", xml, acquired_at)
 
 
 @router.get("/api/detections")

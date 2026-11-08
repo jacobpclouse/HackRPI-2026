@@ -26,13 +26,17 @@
 #app:has(#timeline:not([hidden])) .cesium-viewer-bottom {
   bottom: calc(var(--timeline-h) + 8px) !important;
 }
-#app:has(#timeline:not([hidden])) #hud,
-#app:has(#timeline:not([hidden])) #legend {
+#app:has(#timeline:not([hidden])) #hud {
   bottom: calc(56px + var(--timeline-h));
 }
-#app:has(#timeline[hidden]) #hud,
-#app:has(#timeline[hidden]) #legend {
+#app:has(#timeline:not([hidden])) #legend {
+  bottom: calc(var(--timeline-h) + var(--s2));
+}
+#app:has(#timeline[hidden]) #hud {
   bottom: 56px;
+}
+#app:has(#timeline[hidden]) #legend {
+  bottom: var(--s4);
 }
 #app:has(#timeline[hidden]) .cesium-viewer-bottom {
   bottom: 8px !important;

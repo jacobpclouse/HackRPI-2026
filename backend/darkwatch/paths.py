@@ -103,3 +103,15 @@ def ais_global_cache() -> Path:
 
 def ais_global_seed() -> Path:
     return demo_dir() / "ais_global_seed.json"
+
+
+def samples_dir() -> Path:
+    return data_dir() / "samples"
+
+
+def scene_tiles_cache() -> Path:
+    return cache_dir() / "scene_tiles.json"
+
+
+def imagery_cache_dir() -> Path:
+    return cache_dir() / "imagery"

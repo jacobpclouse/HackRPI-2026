@@ -25,6 +25,8 @@ frontend/config.js
 *.pth
 chips.npz
 lsssdd*/
+!data/samples/lsssdd/
+!data/samples/lsssdd/**
 *.ipynb_checkpoints/
 !backend/models/*.onnx
 !data/demo/evidence/**
@@ -38,6 +40,10 @@ data/raw/
 *.tif
 *.tiff
 !data/demo/**
+!data/samples/
+!data/samples/**
+data/cache/imagery/
+data/cache/scene_tiles.json
 
 # Databricks
 .databricks/

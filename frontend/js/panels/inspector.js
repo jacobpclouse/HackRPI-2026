@@ -1,7 +1,7 @@
 import { getJSON } from "../api.js";
 import { set, state } from "../state.js";
 import { $, esc } from "../ui/dom.js";
-import { accessChip, km } from "../ui/format.js";
+import { accessChip, coord, km } from "../ui/format.js";
 
 const DISCLAIMER =
   "No public AIS is not evidence of wrongdoing. Small boats are not required to carry AIS, state vessels often do not broadcast, and reception can fail.";
@@ -143,17 +143,66 @@ function matchedPanel(ev) {
   );
 }
 
+function satellitePose(rec) {
+  return (rec && state.sats.find((item) => item.rec.norad === rec.norad)) || null;
+}
+
+function formatLat(lat) {
+  if (lat == null || Number.isNaN(Number(lat))) return "—";
+  const value = Number(lat);
+  return `${Math.abs(value).toFixed(3)}°${value >= 0 ? "N" : "S"}`;
+}
+
+function formatLon(lon) {
+  if (lon == null || Number.isNaN(Number(lon))) return "—";
+  const value = Number(lon);
+  return `${Math.abs(value).toFixed(3)}°${value >= 0 ? "E" : "W"}`;
+}
+
+function formatAlt(altKm) {
+  if (altKm == null || Number.isNaN(Number(altKm))) return "—";
+  return `${Number(altKm).toFixed(0)} km`;
+}
+
+function writeHudCursor(sat) {
+  const el = $("hud-cursor");
+  if (!el) return;
+  if (sat && sat.lat != null && sat.lon != null) {
+    el.textContent = coord(sat.lat, sat.lon);
+    return;
+  }
+  el.textContent = "—";
+}
+
+export function paintSelectedSatellite() {
+  const rec = state.selectedSatellite;
+  if (!rec) return;
+  const sat = satellitePose(rec);
+  const latEl = $("sat-lat");
+  const lonEl = $("sat-lon");
+  const altEl = $("sat-alt");
+  if (latEl) latEl.textContent = formatLat(sat && sat.lat);
+  if (lonEl) lonEl.textContent = formatLon(sat && sat.lon);
+  if (altEl) altEl.textContent = formatAlt(sat && sat.altKm);
+  writeHudCursor(sat);
+}
+
 export function showSatellite(rec) {
   const spec = state.missions[rec.family];
   const access = spec ? `<span class="chip ${esc(spec.access)}">${esc(accessChip(spec.access))}</span>` : "";
+  const sat = satellitePose(rec);
   setTitle(rec.name);
   setBody(
     `<div class="kv"><span>Family</span><b>${esc(rec.family)}</b></div>` +
     `<div class="kv"><span>NORAD</span><b>${rec.norad}</b></div>` +
+    `<div class="kv"><span>Latitude</span><b id="sat-lat">${esc(formatLat(sat && sat.lat))}</b></div>` +
+    `<div class="kv"><span>Longitude</span><b id="sat-lon">${esc(formatLon(sat && sat.lon))}</b></div>` +
+    `<div class="kv"><span>Altitude</span><b id="sat-alt">${esc(formatAlt(sat && sat.altKm))}</b></div>` +
     (spec ? `<p>${access} <span class="micro">${esc(spec.band)}-BAND</span></p>` : "") +
     `<p class="hint">${esc(rec.note || rec.label || "")}</p>`,
   );
   showCard();
+  writeHudCursor(sat);
 }
 
 function fallbackBody(p) {

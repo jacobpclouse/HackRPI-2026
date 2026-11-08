@@ -13,7 +13,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from darkwatch import __version__, paths
 from darkwatch.ais import refresh as ais_refresh
-from darkwatch.api import coverage, evidence, health, media, orbits, scene, ships, validation
+from darkwatch.api import coverage, evidence, health, imagery, media, orbits, scene, ships, validation
 
 
 async def _http_error(request: Request, exc: StarletteHTTPException):
@@ -49,7 +49,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=800)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
-    for module in (health, orbits, coverage, scene, media, validation, evidence, ships):
+    for module in (health, orbits, coverage, scene, media, validation, evidence, ships, imagery):
         app.include_router(module.router)
     evidence_dir = paths.evidence_dir()
     if evidence_dir.is_dir():
