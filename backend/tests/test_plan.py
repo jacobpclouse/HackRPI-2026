@@ -2,9 +2,9 @@
 
 from fastapi.testclient import TestClient
 
-from darkwatch.api import create_app
-from darkwatch.casefile.candidates import dark_ids
-from darkwatch.casefile.plan import plan_for
+from nimbus.api import create_app
+from nimbus.casefile.candidates import dark_ids
+from nimbus.casefile.plan import plan_for
 
 
 def test_dark_candidates_come_from_evidence_not_hardcoded_ids():

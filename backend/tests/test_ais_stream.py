@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from darkwatch.ais.stream import category_for, parse_message
+from nimbus.ais.stream import category_for, parse_message
 
 FIXTURES = json.loads((Path(__file__).parent / "fixtures" / "aisstream_messages.json").read_text())
 

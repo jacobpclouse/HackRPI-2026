@@ -1,14 +1,14 @@
-# DarkWatch
+# Nimbus
 
-Radar satellites do not stare at the ocean. DarkWatch shows, on a 3D globe, when a patch of water sits inside an approximate SAR swath and when it does not — then opens a real Sentinel-1 scene and asks which bright radar returns have no public AIS nearby.
+Radar satellites do not stare at the ocean. Nimbus shows, on a 3D globe, when a patch of water sits inside an approximate SAR swath and when it does not — then opens a real Sentinel-1 scene and asks which bright radar returns have no public AIS nearby.
 
-![DarkWatch orbit view](docs/screenshots/orbit.png)
+![Nimbus orbit view](docs/screenshots/orbit.png)
 
 ## The problem
 
 A side-looking radar satellite only illuminates a strip offset from its ground track, and only while it is passing. Ships that want to avoid being watched can learn that schedule. Between passes the water is dark to SAR. Tasked fleets (ICEYE, Capella, Umbra, TerraSAR-X, COSMO-SkyMed) make a ground track even less of a picture: they point on demand.
 
-## What DarkWatch does
+## What Nimbus does
 
 The globe is the product. Click **Kattegat** for a Sentinel-1D chip (2 Nov 2026). Green rings matched public AIS. Red rings are dark candidates (vessel-like, transient, no public AIS). Grey dashed rings are deprioritized (land, rocks, or not vessel-like). Hollow grey rings are AIS-only (broadcasting at the pass, not seen by radar). The classifier card and the detection inspector show how that call was made.
 
@@ -42,7 +42,7 @@ The three unmatched returns are reviewed separately (see Ship classifier). Count
 
 ## Ship classifier
 
-ResNet-18 on 64×64 Sentinel-1 VV chips at 10 m, trained on LS-SSDD-v1.0. Notebook: [`ml/dark_watch_ship_classifier.ipynb`](ml/dark_watch_ship_classifier.ipynb). Model card: [`backend/models/README.md`](backend/models/README.md).
+ResNet-18 on 64×64 Sentinel-1 VV chips at 10 m, trained on LS-SSDD-v1.0. Notebook: [`ml/nimbus_ship_classifier.ipynb`](ml/nimbus_ship_classifier.ipynb). Model card: [`backend/models/README.md`](backend/models/README.md).
 
 | Held-out test (scenes 11–15) | |
 | --- | --- |
@@ -69,7 +69,7 @@ Do not use it to accuse a vessel, a company, or a person. An unmatched detection
 
 “Inside a marine protected area” is a geographic flag, not evidence of fishing or any other activity.
 
-DarkWatch never labels a detection as a smuggler or as illegal. “Potential dark vessel” means “not matched to public AIS.” No public AIS is not evidence of wrongdoing.
+Nimbus never labels a detection as a smuggler or as illegal. “Potential dark vessel” means “not matched to public AIS.” No public AIS is not evidence of wrongdoing.
 
 ## Run it
 

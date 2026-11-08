@@ -7,11 +7,11 @@ to the science (or an import that silently swaps a function) fails here.
 import json
 from datetime import datetime, timedelta, timezone
 
-from darkwatch import paths
-from darkwatch.ais import load_tracks
-from darkwatch.catalog import SYSTEMATIC_FAMILIES, read, snapshot_path
-from darkwatch.detection import match_detections
-from darkwatch.orbit import coverage_gaps, longest_gap, predict_passes
+from nimbus import paths
+from nimbus.ais import load_tracks
+from nimbus.catalog import SYSTEMATIC_FAMILIES, read, snapshot_path
+from nimbus.detection import match_detections
+from nimbus.orbit import coverage_gaps, longest_gap, predict_passes
 
 DEMO = paths.demo_dir()
 SCENE_TIME = datetime(2026, 11, 2, 5, 23, 46, tzinfo=timezone.utc)

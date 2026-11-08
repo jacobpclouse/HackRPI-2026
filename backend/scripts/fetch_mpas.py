@@ -16,11 +16,11 @@ from pathlib import Path
 BACKEND = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND))
 
-from darkwatch import paths  # noqa: E402
-from darkwatch.geo import REGIONS, fetch_natura2000, fetch_wdpa, simplify_collection  # noqa: E402
-from darkwatch.geo.mpa import wdpa_token  # noqa: E402
+from nimbus import paths  # noqa: E402
+from nimbus.geo import REGIONS, fetch_natura2000, fetch_wdpa, simplify_collection  # noqa: E402
+from nimbus.geo.mpa import wdpa_token  # noqa: E402
 
-logger = logging.getLogger("darkwatch.scripts")
+logger = logging.getLogger("nimbus.scripts")
 
 
 def main() -> None:

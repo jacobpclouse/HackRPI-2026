@@ -31,7 +31,7 @@ lsssdd*/
 !backend/models/*.onnx
 !data/demo/evidence/**
 
-# DarkWatch runtime data
+# Nimbus runtime data
 data/cache/
 data/raw/
 *.duckdb

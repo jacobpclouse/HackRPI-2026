@@ -21,9 +21,9 @@ _VENV_HINT = (
 )
 
 try:
-    from darkwatch import config, paths  # noqa: E402
-    from darkwatch.ais import global_cache  # noqa: E402
-    from darkwatch.ais.stream import pull  # noqa: E402
+    from nimbus import config, paths  # noqa: E402
+    from nimbus.ais import global_cache  # noqa: E402
+    from nimbus.ais.stream import pull  # noqa: E402
 except ModuleNotFoundError as exc:
     sys.stderr.write(f"{exc}\n{_VENV_HINT}")
     raise SystemExit(1) from exc

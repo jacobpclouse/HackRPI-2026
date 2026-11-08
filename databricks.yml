@@ -1,16 +1,16 @@
 bundle:
-  name: darkwatch
+  name: nimbus
 
 include:
   - databricks/resources/*.yml
 
 variables:
   catalog:
-    description: Unity Catalog catalog for DarkWatch Delta tables.
+    description: Unity Catalog catalog for Nimbus Delta tables.
     default: workspace
   schema:
-    description: Schema created for DarkWatch tables.
-    default: darkwatch
+    description: Schema created for Nimbus tables.
+    default: nimbus
   warehouse_id:
     description: >-
       Serverless SQL warehouse the app service principal may use. No default:
@@ -27,8 +27,8 @@ sync:
   # Keep backend/models/ and data/demo/evidence/ in the sync. Do not add them here.
 
 # The workspace host comes from the CLI profile or DATABRICKS_HOST.
-# Production mode keeps the app name `darkwatch` and the job name
-# `darkwatch_refresh`. Development mode would prefix both.
+# Production mode keeps the app name `nimbus` and the job name
+# `nimbus_refresh`. Development mode would prefix both.
 targets:
   prod:
     default: true

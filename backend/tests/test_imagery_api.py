@@ -3,9 +3,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from darkwatch import paths
-from darkwatch.api import create_app
-from darkwatch.detection import classifier
+from nimbus import paths
+from nimbus.api import create_app
+from nimbus.detection import classifier
 
 SAMPLES = paths.samples_dir()
 

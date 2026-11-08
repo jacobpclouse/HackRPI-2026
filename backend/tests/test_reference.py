@@ -2,8 +2,8 @@
 
 from shapely.geometry import Point
 
-from darkwatch.casefile.candidates import match_row
-from darkwatch.geo import reference as ref
+from nimbus.casefile.candidates import match_row
+from nimbus.geo import reference as ref
 
 
 def test_jurisdiction_for_dark_candidates():

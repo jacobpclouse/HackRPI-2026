@@ -5,8 +5,8 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from darkwatch.ais.scene_layer import ais_only_vessels
-from darkwatch.api import create_app
+from nimbus.ais.scene_layer import ais_only_vessels
+from nimbus.api import create_app
 
 
 def test_ais_only_count_is_interpolated_minus_matched():

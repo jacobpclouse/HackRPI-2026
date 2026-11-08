@@ -5,10 +5,10 @@ from pathlib import Path
 
 import yaml
 
-from darkwatch import paths
+from nimbus import paths
 
 BACKEND = paths.root() / "backend"
-JOB_YAML = paths.root() / "databricks" / "resources" / "darkwatch_refresh.job.yml"
+JOB_YAML = paths.root() / "databricks" / "resources" / "nimbus_refresh.job.yml"
 
 
 def _norm(name: str) -> str:
@@ -44,7 +44,7 @@ def _names(path: Path) -> set[str]:
 
 def _job_dependencies() -> dict[str, str]:
     job = yaml.safe_load(JOB_YAML.read_text())
-    envs = job["resources"]["jobs"]["darkwatch_refresh"]["environments"]
+    envs = job["resources"]["jobs"]["nimbus_refresh"]["environments"]
     deps = {}
     for env in envs:
         for item in env["spec"]["dependencies"]:

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
-from darkwatch.catalog.families import FAMILIES
-from darkwatch.catalog.missions import asf_vertex_url, copernicus_browser_url, load_missions
+from nimbus.catalog.families import FAMILIES
+from nimbus.catalog.missions import asf_vertex_url, copernicus_browser_url, load_missions
 
 
 def test_every_catalog_family_has_a_registry_entry():
@@ -27,7 +27,7 @@ def test_registry_fields_and_access_values():
 
 
 def test_new_sar_names_classify_and_optical_lookalikes_do_not():
-    from darkwatch.catalog.families import classify, exclusion_reason
+    from nimbus.catalog.families import classify, exclusion_reason
 
     assert classify("ARIRANG-5 (KOMPSAT-5)").family == "KOMPSAT-5"
     assert classify("KOMPSAT-3A") is None

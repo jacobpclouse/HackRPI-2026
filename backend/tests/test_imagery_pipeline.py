@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from darkwatch.imagery import chips, geotiff, ground_truth, proposals
-from darkwatch.imagery.geotiff import parse_acquisition
+from nimbus.imagery import chips, geotiff, ground_truth, proposals
+from nimbus.imagery.geotiff import parse_acquisition
 
 
 def _blob_image():
@@ -51,7 +51,7 @@ def test_ground_truth_tp_fp_fn():
 
 
 def test_acquisition_time_sources():
-    tag = parse_acquisition({"DARKWATCH_ACQUISITION_TIME": "2026-11-02T05:23:46Z"}, "x.tif", None)
+    tag = parse_acquisition({"NIMBUS_ACQUISITION_TIME": "2026-11-02T05:23:46Z"}, "x.tif", None)
     assert tag["source"] == "geotiff_tag"
     tiff = parse_acquisition({"TIFFTAG_DATETIME": "2026:11:02 05:23:46"}, "x.tif", None)
     assert tiff["source"] == "tiff_datetime"

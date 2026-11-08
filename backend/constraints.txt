@@ -1,6 +1,6 @@
 # Single source of truth for every version pin. requirements*.txt list names
 # only and start with `-c constraints.txt`. The refresh job YAML
-# (databricks/resources/darkwatch_refresh.job.yml) repeats the job subset;
+# (databricks/resources/nimbus_refresh.job.yml) repeats the job subset;
 # tests/test_pins.py fails if the two disagree.
 #
 # Conflicts that existed before this file (app pin vs job pin), and the choice:

@@ -19,10 +19,10 @@ flowchart LR
     EV[data/demo/evidence]
     DUCK[DuckDB]
     TIGER[Timescale]
-    DELTA[Delta workspace.darkwatch]
+    DELTA[Delta workspace.nimbus]
   end
   subgraph app [FastAPI]
-    API[darkwatch.api routers]
+    API[nimbus.api routers]
     CLF[ONNX ship classifier]
   end
   subgraph ui [Frontend]
@@ -49,7 +49,7 @@ flowchart LR
 
 Read order at runtime: Tiger (if `TIGER_DATABASE_URL` is set and has a scene), then the Databricks SQL warehouse, then the bundled files in `data/demo`. `/api/health` reports `data.source` as `tiger`, `warehouse`, or `bundle`.
 
-## Backend packages (`backend/darkwatch/`)
+## Backend packages (`backend/nimbus/`)
 
 | Package | Job |
 | --- | --- |
@@ -64,7 +64,7 @@ Read order at runtime: Tiger (if `TIGER_DATABASE_URL` is set and has a scene), t
 | `casefile/` | Reach disks (6/12/20 kn), 48 h reacquisition plans, deterministic `facts.py`, guarded Gemini narrative (or template fallback), SVG report map, GPX/KML/GeoJSON/JSON exports, printable two-page case file, one-page incident brief, and analyst sign-off. |
 | `services/` | Briefs (Gemini or template), Fish Audio narration, GFW validation, evidence (`candidate_status`, `ais_context`). |
 | `config.py` | Only module that reads environment variables. |
-| `paths.py` | Repo root via `.darkwatch-root` + `data/`. |
+| `paths.py` | Repo root via `.nimbus-root` + `data/`. |
 
 ## Frontend (`frontend/js/`)
 

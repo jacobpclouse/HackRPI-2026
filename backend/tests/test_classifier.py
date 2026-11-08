@@ -5,7 +5,7 @@ import pytest
 
 onnxruntime = pytest.importorskip("onnxruntime")
 
-from darkwatch.detection import classifier  # noqa: E402
+from nimbus.detection import classifier  # noqa: E402
 
 
 def test_score_zero_chips_shape_and_range():

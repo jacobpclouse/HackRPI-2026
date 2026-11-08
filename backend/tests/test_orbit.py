@@ -2,7 +2,7 @@ import json
 from datetime import timedelta
 from pathlib import Path
 
-from darkwatch.orbit import epoch_of, haversine_km, propagate_one, satrec_from_omm, tle_lines
+from nimbus.orbit import epoch_of, haversine_km, propagate_one, satrec_from_omm, tle_lines
 
 FIXTURE = Path(__file__).parent / "fixtures" / "s1d_gp.json"
 

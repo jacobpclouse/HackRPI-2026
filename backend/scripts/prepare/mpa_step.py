@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from darkwatch.geo import fetch_natura2000, simplify_collection
+from nimbus.geo import fetch_natura2000, simplify_collection
 from prepare import Target, log
 
 
