@@ -2,7 +2,7 @@
 
 Radar satellites do not stare at the ocean. Nimbus shows, on a 3D globe, when a patch of water sits inside an approximate SAR swath and when it does not — then opens a real Sentinel-1 scene and asks which bright radar returns have no public AIS nearby.
 
-![Nimbus orbit view](docs/screenshots/orbit.png)
+![Nimbus globe](docs/screenshots/nimbus-hero.png)
 
 ## The problem
 
