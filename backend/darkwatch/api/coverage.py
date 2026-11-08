@@ -11,6 +11,7 @@ from darkwatch.api.common import split_families
 from darkwatch.catalog import SYSTEMATIC_FAMILIES
 from darkwatch.detection import coverage_report, floor_now, sentinel_validation
 from darkwatch.orbit import Gap, parse_time
+from darkwatch.services.evidence import review_block
 from darkwatch.storage import get_snapshot, ping_tracks, report_from_stored
 
 router = APIRouter()
@@ -122,4 +123,5 @@ def story(families: str | None = None):
         "ethics": summary.get("note"),
         "data_source": snap.source,
         "refreshed_at": snap.refreshed_at,
+        "review": review_block(snap.matches or []),
     }

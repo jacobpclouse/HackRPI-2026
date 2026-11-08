@@ -12,6 +12,7 @@ from fastapi.responses import Response
 from darkwatch import __version__, config, paths
 from darkwatch.api.common import scene_summary, store
 from darkwatch.catalog import status as catalog_status
+from darkwatch.detection import classifier
 from darkwatch.storage import get_snapshot
 
 router = APIRouter()
@@ -57,6 +58,10 @@ def health():
         "data": snap.status(),
         "store": db.status(),
         "fallbacks": fallbacks,
+        "classifier": {
+            "available": classifier.available(),
+            "threshold": classifier.threshold() if classifier.threshold_path().is_file() else None,
+        },
     }
 
 

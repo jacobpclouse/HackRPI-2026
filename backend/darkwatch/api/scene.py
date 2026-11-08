@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, Response
 from darkwatch import paths
 from darkwatch.api.common import matches, store
 from darkwatch.orbit import parse_time
+from darkwatch.services.evidence import enrich_match, review_block
 from darkwatch.storage import get_snapshot, traffic_query
 
 router = APIRouter()
@@ -21,7 +22,12 @@ def scene():
     snap = get_snapshot()
     if not snap.summary or not snap.meta:
         raise HTTPException(404, "Scene sample is missing. Run make prepare.")
-    return {"summary": snap.summary, "meta": snap.meta, "source": snap.source}
+    return {
+        "summary": snap.summary,
+        "meta": snap.meta,
+        "source": snap.source,
+        "review": review_block(snap.matches or []),
+    }
 
 
 @router.get("/api/scene/preview.png")
@@ -53,6 +59,9 @@ def scene_upload():
           "note": "Unmatched means not matched to public AIS. It is not evidence of wrongdoing."
         }
 
+    When this is implemented, each detection chip will be scored with
+    ``darkwatch.detection.classifier.score`` (64×64 VV, float32 in [0, 1]).
+
     Until then this returns 501.
     """
     raise HTTPException(501, "Scene upload is not implemented yet.")
@@ -68,7 +77,7 @@ def detections():
         "features": [
             {
                 "type": "Feature",
-                "properties": {k: v for k, v in row.items() if k not in ("lat", "lon")},
+                "properties": {k: v for k, v in enrich_match(row).items() if k not in ("lat", "lon")},
                 "geometry": {"type": "Point", "coordinates": [row["lon"], row["lat"]]},
             }
             for row in rows

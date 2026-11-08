@@ -13,3 +13,4 @@ duckdb
 psycopg[binary]
 databricks-sdk
 databricks-sql-connector
+onnxruntime

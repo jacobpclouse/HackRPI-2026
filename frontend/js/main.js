@@ -10,8 +10,8 @@ import {
 } from "./globe/satellites.js";
 import { clearSwath, drawSwathFor } from "./globe/swath.js";
 import { createViewer, flyHome, pickId } from "./globe/viewer.js";
-import { focusDetection, idleInspector, showSatellite } from "./panels/inspector.js";
-import { markKattegat, renderHudChips, renderLegend, wireDock } from "./panels/layers.js";
+import { focusDetection, idleInspector, showModelCard, showSatellite } from "./panels/inspector.js";
+import { markKattegat, renderHudChips, renderLegend, renderStatusLegend, wireDock } from "./panels/layers.js";
 import { set } from "./state.js";
 import { bindScrub, drawTimeline, paint as paintTimeline } from "./timeline.js";
 import { $ } from "./ui/dom.js";
@@ -39,6 +39,7 @@ async function openKattegat() {
   await showScene();
   await loadCoverage(region.lat, region.lon, "Kattegat · 48 h");
   renderHudChips();
+  renderStatusLegend(true);
 }
 
 function showEarth() {
@@ -56,6 +57,11 @@ function wire() {
   $("speed").addEventListener("click", cycleSpeed);
   $("live").addEventListener("click", returnToLive);
   $("card-close").addEventListener("click", clearSelection);
+  $("dock-model").addEventListener("click", () => {
+    clearSatelliteSelection();
+    clearSwath();
+    showModelCard();
+  });
   wireDock({
     onSats: applyFleetFilter,
     onAis: (on) => setLayerVisible("ais", on),
@@ -104,12 +110,13 @@ async function main() {
     paintTimeline();
   });
   try {
-    const [, missions, health] = await Promise.all([
+    const [, missions, health, model] = await Promise.all([
       loadSatellites(),
       getJSON("/api/missions"),
       getJSON("/api/health"),
+      getJSON("/api/model"),
     ]);
-    set({ missions: missions.missions || {}, health });
+    set({ missions: missions.missions || {}, health, model });
     renderHudChips();
     renderLegend();
     await loadMpas();

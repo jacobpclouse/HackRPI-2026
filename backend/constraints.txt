@@ -27,6 +27,10 @@ psycopg==3.3.8
 psycopg-binary==3.3.8
 databricks-sdk==0.162.0
 databricks-sql-connector==4.9.0
+# onnxruntime is an app dependency only (not in requirements-job.txt / the refresh
+# job YAML). 1.23.2 is a CPython 3.12 wheel that installs next to numpy 2.5.4;
+# pip check stays clean. Newer 1.3x builds were not required for a single ResNet-18.
+onnxruntime==1.23.2
 
 # --- refresh job and `make prepare` (requirements-job.txt) ---
 pillow==13.0.0

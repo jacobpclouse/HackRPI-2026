@@ -1,6 +1,10 @@
+import { getJSON } from "../api.js";
 import { set, state } from "../state.js";
 import { $, esc } from "../ui/dom.js";
 import { accessChip, km } from "../ui/format.js";
+
+const DISCLAIMER =
+  "No public AIS is not evidence of wrongdoing. Small boats are not required to carry AIS, state vessels often do not broadcast, and reception can fail.";
 
 export function setTitle(text) {
   $("card-title").textContent = text;
@@ -19,6 +23,126 @@ function showCard() {
   $("card").hidden = false;
 }
 
+function pct(value) {
+  if (value == null || Number.isNaN(Number(value))) return "—";
+  return `${(Number(value) * 100).toFixed(1)}%`;
+}
+
+function scoreBar(score, threshold, vesselLike) {
+  const s = Math.max(0, Math.min(1, Number(score) || 0));
+  const t = Math.max(0, Math.min(1, Number(threshold) || 0));
+  const fill = vesselLike ? "" : " low";
+  return (
+    `<div class="score-bar" title="score ${s.toFixed(2)}, threshold ${t.toFixed(3)}">` +
+    `<div class="score-fill${fill}" style="width:${(s * 100).toFixed(1)}%"></div>` +
+    `<span class="score-tick" style="left:${(t * 100).toFixed(1)}%"></span>` +
+    `</div>` +
+    `<p class="hint">${s.toFixed(2)} · ${vesselLike ? "vessel-like" : "not vessel-like"}</p>`
+  );
+}
+
+function classifierCaption() {
+  const model = state.model;
+  if (model && model.available === false) {
+    return `<p class="micro">precomputed; live classifier unavailable</p>`;
+  }
+  return "";
+}
+
+function persistenceCopy(verdict) {
+  if (verdict === "persistent") {
+    return "Persistent: present on every covered pass, likely land or a fixed structure";
+  }
+  if (verdict === "transient") {
+    return "Transient: absent on other passes";
+  }
+  return verdict || "—";
+}
+
+function statusLine(ev) {
+  const status = ev.candidate_status;
+  if (status === "dark_candidate") {
+    return "Dark candidate: vessel-like, transient, no public AIS at the time of the pass.";
+  }
+  if (status === "deprioritized") {
+    const verdict = ev.persistence && ev.persistence.verdict;
+    if (verdict === "persistent") {
+      return "Deprioritized: persistent on every covered pass, likely land or a fixed structure.";
+    }
+    return "Deprioritized: not vessel-like.";
+  }
+  if (status === "unreviewed") {
+    return "Unreviewed: unmatched, no evidence entry.";
+  }
+  return "Matched to public AIS.";
+}
+
+function vesselList(ctx) {
+  const vessels = (ctx && ctx.vessels) || [];
+  if (!vessels.length) return "";
+  const rows = vessels.map((v) => {
+    const id = v.matched_detection ? ` → ${esc(v.matched_detection)}` : "";
+    const dist = v.matched_detection_km != null ? ` (${esc(v.matched_detection_km)} km)` : "";
+    return `<li>${esc(v.name || v.mmsi)}${id}${dist}</li>`;
+  }).join("");
+  return `<details class="vessel-list"><summary>Vessels</summary><ul>${rows}</ul></details>`;
+}
+
+function compactClassifier(ev) {
+  const c = ev.classifier || {};
+  if (c.score == null) return "";
+  return (
+    `<div class="evidence-row">` +
+    `<div class="evidence-head"><h2>Classifier</h2><span class="chip">MODELED</span></div>` +
+    classifierCaption() +
+    (c.chip_url ? `<img class="chip-img" src="${esc(c.chip_url)}" alt="${esc(ev.id)} chip" />` : "") +
+    scoreBar(c.score, c.threshold, c.vessel_like) +
+    `</div>`
+  );
+}
+
+function unmatchedPanel(ev) {
+  const p = ev.detection || {};
+  const ctx = ev.ais_context || {};
+  const c = ev.classifier || {};
+  const pers = ev.persistence;
+  const nearest = p.nearest_ais_km != null ? km(p.nearest_ais_km) : "—";
+  return (
+    `<div class="evidence-row">` +
+    `<div class="evidence-head"><h2>AIS</h2><span class="chip">SNAPSHOT 02 NOV</span></div>` +
+    `<div class="kv"><span>Nearest AIS</span><b>${esc(nearest)}</b></div>` +
+    `<p class="hint">${esc(ctx.summary || "")}</p>` +
+    vesselList(ctx) +
+    `</div>` +
+    `<div class="evidence-row">` +
+    `<div class="evidence-head"><h2>Classifier</h2><span class="chip">MODELED</span></div>` +
+    classifierCaption() +
+    (c.chip_url ? `<img class="chip-img" src="${esc(c.chip_url)}" alt="${esc(ev.id)} chip" />` : "") +
+    scoreBar(c.score, c.threshold, c.vessel_like) +
+    `</div>` +
+    `<div class="evidence-row">` +
+    `<div class="evidence-head"><h2>Persistence</h2><span class="chip">REVIEWED</span></div>` +
+    (pers && pers.strip_url ? `<img class="chip-img" src="${esc(pers.strip_url)}" alt="${esc(ev.id)} persistence" />` : "") +
+    `<p class="hint">${esc(persistenceCopy(pers && pers.verdict))}</p>` +
+    `<p class="micro">analyst-reviewed</p>` +
+    `</div>` +
+    `<div class="evidence-row">` +
+    `<div class="evidence-head"><h2>Status</h2></div>` +
+    `<p>${esc(statusLine(ev))}</p>` +
+    `</div>` +
+    `<p class="disclaimer">${esc(DISCLAIMER)}</p>`
+  );
+}
+
+function matchedPanel(ev) {
+  const p = ev.detection || {};
+  return (
+    `<p><span class="chip open">AIS ${esc(p.name || p.mmsi)}</span></p>` +
+    `<p class="hint">${km(p.match_km)} from public AIS.</p>` +
+    compactClassifier(ev)
+  );
+}
+
 export function showSatellite(rec) {
   const spec = state.missions[rec.family];
   const access = spec ? `<span class="chip ${esc(spec.access)}">${esc(accessChip(spec.access))}</span>` : "";
@@ -32,27 +156,31 @@ export function showSatellite(rec) {
   showCard();
 }
 
-export function showDetection(feature) {
+function fallbackBody(p) {
+  if (p.matched) {
+    return (
+      `<p><span class="chip open">AIS ${esc(p.name || p.mmsi)}</span></p>` +
+      `<p class="hint">${km(p.match_km)} from public AIS.</p>`
+    );
+  }
+  return (
+    `<p><span class="chip commercial">not on public AIS</span></p>` +
+    `<p class="disclaimer">${esc(DISCLAIMER)}</p>`
+  );
+}
+
+export async function showDetection(feature) {
   const p = feature.properties;
   set({ selectedDetection: feature });
   setTitle(p.id);
-  if (p.matched) {
-    setBody(
-      `<p><span class="chip open">AIS ${esc(p.name || p.mmsi)}</span></p>` +
-      `<p class="hint">${km(p.match_km)} from public AIS.</p>`,
-    );
-  } else {
-    const where = p.in_mpa
-      ? `inside ${p.mpa_name || "an MPA"}`
-      : (p.near_mpa ? `near ${p.mpa_name || "an MPA"}` : `${esc(p.shore_km)} km offshore`);
-    setBody(
-      `<p><span class="chip commercial">not on public AIS</span></p>` +
-      `<div class="kv"><span>Peak</span><b>${Number(p.peak_db).toFixed(1)} dB</b></div>` +
-      `<div class="kv"><span>Where</span><b>${esc(where)}</b></div>` +
-      `<p class="ethics">Unmatched means not matched to public AIS. It is not evidence of wrongdoing.</p>`,
-    );
-  }
+  setBody(`<p class="hint">Loading evidence…</p>`);
   showCard();
+  try {
+    const ev = await getJSON(`/api/evidence/${encodeURIComponent(p.id)}`);
+    setBody(p.matched ? matchedPanel(ev) : unmatchedPanel(ev));
+  } catch {
+    setBody(fallbackBody(p));
+  }
 }
 
 export function focusDetection(feature) {
@@ -63,7 +191,39 @@ export function focusDetection(feature) {
     duration: 2.5,
     easingFunction: Cesium.EasingFunction.CUBIC_IN_OUT,
   });
-  showDetection(feature);
+  return showDetection(feature);
+}
+
+export async function showModelCard() {
+  let model = state.model;
+  try {
+    model = await getJSON("/api/model");
+    set({ model });
+  } catch {
+    /* keep cached */
+  }
+  if (!model) {
+    setTitle("SHIP CLASSIFIER");
+    setBody(`<p class="hint">Model card unavailable.</p>`);
+    showCard();
+    return;
+  }
+  const test = model.test || {};
+  const kat = model.kattegat || {};
+  setTitle("SHIP CLASSIFIER");
+  setBody(
+    `<div class="hero-pair">` +
+    `<div><span class="micro">Ships kept</span><p class="hero">${esc(pct(test.ships_kept))}</p></div>` +
+    `<div><span class="micro">False alarms rejected</span><p class="hero">${esc(pct(test.cfar_false_alarms_rejected))}</p></div>` +
+    `</div>` +
+    `<p>${esc(kat.ais_confirmed_recognized)} of ${esc(kat.ais_confirmed_total)} AIS-confirmed ships recognized.</p>` +
+    `<p class="hint">Miss: ${esc(kat.miss)}</p>` +
+    `<div class="kv"><span>Threshold</span><b>${Number(model.threshold).toFixed(3)}</b></div>` +
+    `<p class="hint">${esc(model.threshold_rule)}</p>` +
+    `<p class="disclaimer">${esc(model.license)}</p>` +
+    (model.available === false ? `<p class="micro">precomputed; live classifier unavailable</p>` : ""),
+  );
+  showCard();
 }
 
 export function idleInspector() {

@@ -29,6 +29,24 @@ export function renderLegend() {
   box.hidden = !state.layers.sats;
 }
 
+export function renderStatusLegend(on) {
+  const box = $("hud-status");
+  if (!box) return;
+  if (!on) {
+    box.hidden = true;
+    box.innerHTML = "";
+    return;
+  }
+  box.hidden = false;
+  box.innerHTML =
+    `<div class="status-legend">` +
+    `<div class="legend-row"><span class="legend-swatch matched"></span>Matched — public AIS at acquisition</div>` +
+    `<div class="legend-row"><span class="legend-swatch dark"></span>Dark candidate — vessel-like, transient, no public AIS</div>` +
+    `<div class="legend-row"><span class="legend-swatch depri"></span>Deprioritized — not vessel-like or persistent</div>` +
+    `<div class="legend-row"><span class="legend-swatch unrev"></span>Unreviewed — unmatched, no evidence yet</div>` +
+    `</div>`;
+}
+
 export function renderHudChips() {
   const box = $("hud-chips");
   const cat = state.catalog;

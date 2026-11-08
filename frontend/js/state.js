@@ -15,6 +15,7 @@ export const state = {
   catalog: null,
   missions: {},
   health: null,
+  model: null,
   viewer: null,
   sats: [],
   sceneOn: false,
